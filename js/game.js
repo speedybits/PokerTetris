@@ -5,6 +5,7 @@ class Game {
         this.initializeControls();
         this.baseDropInterval = 500; // Base speed of 1 second
         this.minDropInterval = 200;   // Maximum speed (minimum interval) of 0.2 seconds
+        this.isPaused = false;  // Add pause state
     }
 
     initializeScreens() {
@@ -39,6 +40,7 @@ class Game {
         this.gameOver = false;
         this.dropInterval = this.baseDropInterval;
         this.lastDrop = 0;
+        this.isPaused = false;
     }
 
     startGame() {
@@ -193,40 +195,55 @@ class Game {
     checkForMatches() {
         const hands = this.board.checkForPokerHands();
         if (hands.length > 0) {
-            // Create and show the poker hand notification
-            const notification = document.createElement('div');
-            notification.className = 'poker-notification';
+            // Pause the game while showing notification
+            this.isPaused = true;
             
             // Process each hand
             let totalScore = 0;
-            const handMessages = hands.map(hand => {
-                const score = this.evaluatePokerHand(hand.cards);
-                const handName = this.getPokerHandName(hand.cards);
-                totalScore += score;
+            const handResults = hands.map(hand => {
+                const result = this.evaluatePokerHand(hand.cards);
+                if (result.score === 0) return null; // Skip if no valid poker hand
+
+                // Map the indices to the actual positions to remove
+                const positionsToRemove = result.cardsToRemove.map(idx => hand.positions[idx]);
                 
-                // Highlight the matching cards
-                hand.positions.forEach(pos => {
+                // Highlight only the matching cards
+                positionsToRemove.forEach(pos => {
                     const cell = this.board.element.children[pos.y * this.board.width + pos.x];
                     const card = cell.firstChild;
                     if (card) {
                         card.classList.add('matching');
                     }
                 });
-                
-                return `${handName}: ${score} points!`;
-            });
 
-            notification.innerHTML = handMessages.join('<br>');
-            if (hands.length > 1) {
+                totalScore += result.score;
+                return {
+                    message: `${result.name}: ${result.score} points!`,
+                    score: result.score,
+                    positions: positionsToRemove,
+                    cards: result.cardsToRemove.map(idx => hand.cards[idx])
+                };
+            }).filter(result => result !== null);
+
+            if (handResults.length === 0) {
+                this.isPaused = false;
+                return;
+            }
+
+            // Create and show the poker hand notification
+            const notification = document.createElement('div');
+            notification.className = 'poker-notification';
+            notification.innerHTML = handResults.map(result => result.message).join('<br>');
+            if (handResults.length > 1) {
                 notification.innerHTML += `<br>Total: ${totalScore} points!`;
             }
             document.getElementById('game-container').appendChild(notification);
 
             // Pause for 3 seconds, then remove cards with explosion effect
             setTimeout(() => {
-                hands.forEach(hand => {
+                handResults.forEach(result => {
                     // Add explosion effect to each card
-                    hand.positions.forEach(pos => {
+                    result.positions.forEach(pos => {
                         const cell = this.board.element.children[pos.y * this.board.width + pos.x];
                         const card = cell.firstChild;
                         if (card) {
@@ -237,14 +254,13 @@ class Game {
 
                 // Wait for explosion animation, then remove cards and apply gravity
                 setTimeout(() => {
-                    hands.forEach(hand => {
-                        const score = this.evaluatePokerHand(hand.cards);
-                        this.score += score;
-                        hand.cards.forEach(card => this.deck.addCard(card));
+                    handResults.forEach(result => {
+                        this.score += result.score;
+                        result.cards.forEach(card => this.deck.addCard(card));
                     });
                     
                     // Remove all matched cards at once
-                    const allPositions = hands.flatMap(hand => hand.positions);
+                    const allPositions = handResults.flatMap(result => result.positions);
                     this.board.removeCards(allPositions);
                     
                     // Update speed based on score
@@ -258,6 +274,11 @@ class Game {
 
                     // Check for new matches after cards have fallen
                     setTimeout(() => {
+                        // Resume the game if no new matches are found
+                        const newHands = this.board.checkForPokerHands();
+                        if (newHands.length === 0) {
+                            this.isPaused = false;
+                        }
                         this.checkForMatches();
                     }, 500); // Wait for cards to finish falling
                 }, 500); // Explosion animation duration
@@ -265,19 +286,19 @@ class Game {
         }
     }
 
-    getPokerHandName(cards) {
+    evaluatePokerHand(cards, positions) {
         // Sort cards by value for easier evaluation
-        cards.sort((a, b) => a.value - b.value);
+        const sortedCards = [...cards].sort((a, b) => a.value - b.value);
         
         // Check for flush (all same suit)
-        const isFlush = cards.every(card => card.suit === cards[0].suit);
+        const isFlush = sortedCards.every(card => card.suit === sortedCards[0].suit);
         
         // Check for straight (consecutive values)
         let isStraight = true;
-        for (let i = 1; i < cards.length; i++) {
-            if (cards[i].value !== cards[i-1].value + 1) {
+        for (let i = 1; i < sortedCards.length; i++) {
+            if (sortedCards[i].value !== sortedCards[i-1].value + 1) {
                 // Special case for Ace-high straight
-                if (i === cards.length - 1 && cards[0].value === 1 && cards[1].value === 10) {
+                if (i === sortedCards.length - 1 && sortedCards[0].value === 1 && sortedCards[1].value === 10) {
                     continue;
                 }
                 isStraight = false;
@@ -287,112 +308,77 @@ class Game {
 
         // Count card values for pairs, three of a kind, etc.
         const valueCounts = {};
-        cards.forEach(card => {
-            valueCounts[card.value] = (valueCounts[card.value] || 0) + 1;
+        cards.forEach((card, index) => {
+            valueCounts[card.value] = valueCounts[card.value] || { count: 0, indices: [] };
+            valueCounts[card.value].count++;
+            valueCounts[card.value].indices.push(index);
         });
-        const counts = Object.values(valueCounts);
+        const counts = Object.values(valueCounts).map(v => v.count);
 
-        // Check hand types in descending order of value
-        if (isFlush && isStraight && cards[0].value === 1 && cards[4].value === 13) {
-            return "Royal Flush";
-        }
+        // Royal Flush or Straight Flush
         if (isFlush && isStraight) {
-            return "Straight Flush";
-        }
-        if (counts.includes(4)) {
-            return "Four of a Kind";
-        }
-        if (counts.includes(3) && counts.includes(2)) {
-            return "Full House";
-        }
-        if (isFlush) {
-            return "Flush";
-        }
-        if (isStraight) {
-            return "Straight";
-        }
-        if (counts.includes(3)) {
-            return "Three of a Kind";
-        }
-        if (counts.filter(count => count === 2).length === 2) {
-            return "Two Pair";
-        }
-        if (counts.includes(2)) {
-            return "One Pair";
-        }
-        return "High Card";
-    }
-
-    evaluatePokerHand(cards) {
-        // Sort cards by value for easier evaluation
-        cards.sort((a, b) => a.value - b.value);
-        
-        // Check for flush (all same suit)
-        const isFlush = cards.every(card => card.suit === cards[0].suit);
-        
-        // Check for straight (consecutive values)
-        let isStraight = true;
-        for (let i = 1; i < cards.length; i++) {
-            if (cards[i].value !== cards[i-1].value + 1) {
-                // Special case for Ace-high straight
-                if (i === cards.length - 1 && cards[0].value === 1 && cards[1].value === 10) {
-                    continue;
-                }
-                isStraight = false;
-                break;
+            if (sortedCards[0].value === 1 && sortedCards[4].value === 13) {
+                return { score: 2000, cardsToRemove: [0, 1, 2, 3, 4], name: "Royal Flush" };
             }
+            return { score: 1000, cardsToRemove: [0, 1, 2, 3, 4], name: "Straight Flush" };
         }
 
-        // Count card values for pairs, three of a kind, etc.
-        const valueCounts = {};
-        cards.forEach(card => {
-            valueCounts[card.value] = (valueCounts[card.value] || 0) + 1;
-        });
-        const counts = Object.values(valueCounts);
-
-        // Royal Flush
-        if (isFlush && isStraight && cards[0].value === 1 && cards[4].value === 13) {
-            return 2000;
-        }
-        // Straight Flush
-        if (isFlush && isStraight) {
-            return 1000;
-        }
         // Four of a Kind
-        if (counts.includes(4)) {
-            return 500;
+        const fourOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 4);
+        if (fourOfAKind) {
+            return { score: 500, cardsToRemove: fourOfAKind[1].indices, name: "Four of a Kind" };
         }
+
         // Full House
         if (counts.includes(3) && counts.includes(2)) {
-            return 300;
+            const threeOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 3);
+            const pair = Object.entries(valueCounts).find(([_, v]) => v.count === 2);
+            return { 
+                score: 300, 
+                cardsToRemove: [...threeOfAKind[1].indices, ...pair[1].indices], 
+                name: "Full House" 
+            };
         }
+
         // Flush
         if (isFlush) {
-            return 200;
+            return { score: 200, cardsToRemove: [0, 1, 2, 3, 4], name: "Flush" };
         }
+
         // Straight
         if (isStraight) {
-            return 150;
+            return { score: 150, cardsToRemove: [0, 1, 2, 3, 4], name: "Straight" };
         }
+
         // Three of a Kind
-        if (counts.includes(3)) {
-            return 100;
+        const threeOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 3);
+        if (threeOfAKind) {
+            return { score: 100, cardsToRemove: threeOfAKind[1].indices, name: "Three of a Kind" };
         }
+
         // Two Pair
-        if (counts.filter(count => count === 2).length === 2) {
-            return 50;
+        const pairs = Object.entries(valueCounts).filter(([_, v]) => v.count === 2);
+        if (pairs.length === 2) {
+            return { 
+                score: 50, 
+                cardsToRemove: [...pairs[0][1].indices, ...pairs[1][1].indices], 
+                name: "Two Pair" 
+            };
         }
+
         // One Pair
         if (counts.includes(2)) {
-            return 25;
+            const pair = Object.entries(valueCounts).find(([_, v]) => v.count === 2);
+            return { score: 25, cardsToRemove: pair[1].indices, name: "One Pair" };
         }
         
-        return 0;
+        // No valid poker hand (less than one pair)
+        return { score: 0, cardsToRemove: [], name: "No Hand" };
     }
 
     gameLoop() {
         const now = Date.now();
-        if (now - this.lastDrop > this.dropInterval) {
+        if (!this.isPaused && now - this.lastDrop > this.dropInterval) {
             if (this.board.isValidPosition(this.currentX, this.currentY + 1)) {
                 this.currentY++;
             } else {
@@ -405,7 +391,7 @@ class Game {
         const displayGrid = this.board.grid.map(row => [...row]);
 
         // Only add the current falling card to its current position
-        if (this.currentCard && !this.gameOver) {
+        if (this.currentCard && !this.gameOver && !this.isPaused) {
             displayGrid[this.currentY][this.currentX] = this.currentCard;
         }
 

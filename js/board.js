@@ -92,9 +92,14 @@ class Board {
         // Check horizontal hands
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x <= this.width - 5; x++) {
-                const hand = this.grid[y].slice(x, x + 5).filter(card => card !== null);
-                if (hand.length === 5) {
-                    hands.push({cards: hand, positions: Array.from({length: 5}, (_, i) => ({x: x + i, y}))});
+                const cards = this.grid[y].slice(x, x + 5);
+                // Only consider if we have all 5 cards
+                if (!cards.includes(null)) {
+                    const positions = Array.from({length: 5}, (_, i) => ({x: x + i, y}));
+                    hands.push({
+                        cards: cards,
+                        positions: positions
+                    });
                 }
             }
         }
@@ -102,9 +107,14 @@ class Board {
         // Check vertical hands
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y <= this.height - 5; y++) {
-                const hand = Array.from({length: 5}, (_, i) => this.grid[y + i][x]).filter(card => card !== null);
-                if (hand.length === 5) {
-                    hands.push({cards: hand, positions: Array.from({length: 5}, (_, i) => ({x, y: y + i}))});
+                const cards = Array.from({length: 5}, (_, i) => this.grid[y + i][x]);
+                // Only consider if we have all 5 cards
+                if (!cards.includes(null)) {
+                    const positions = Array.from({length: 5}, (_, i) => ({x, y: y + i}));
+                    hands.push({
+                        cards: cards,
+                        positions: positions
+                    });
                 }
             }
         }
