@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Open in iPad Mode",
+            "file": "${workspaceFolder}/index.html",
+            "runtimeArgs": [
+                "--auto-open-devtools-for-tabs",
+                "--force-device-scale-factor=1"
+            ]
+        }
+    ]
+}
