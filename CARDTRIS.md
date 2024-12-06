@@ -4,12 +4,13 @@
 Cardtris combines the falling-block mechanics of Tetris with poker hand evaluation using a standard 52-card deck. Players must strategically place falling cards to create winning poker hands while managing the game board.
 
 ## Display Requirements
-- Optimized for iPad screens in portrait orientation only
+- Optimized for mobile devices in portrait orientation
+- Landscape orientation shows a warning message to rotate device
 - Game board fills the majority of the screen height
-- Next card preview and score display at the top of screen
+- Next card preview and score display in top-right corner
 - Cards sized appropriately for touch interaction
-- Minimum supported resolution: 1024x768 (iPad)
 - Maximum board width of 500px for larger screens
+- Responsive design that works on all mobile devices
 
 ## Game Screens
 
@@ -26,13 +27,16 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Height: 15 cards
 - Cards fall one at a time from the top of the board
 - Players can move cards left/right as they fall
+- Game info overlay in top-right showing:
+  - Next card preview
+  - Current score
 
 ### Game Over Screen
 - Shows final score
 - Prompts for player initials (3 characters)
 - After entering initials:
-  - If score makes the top 5, shows "New High Score!"
-  - Returns to start screen after 3 seconds
+  - Score is saved if it makes the top 5
+  - Returns to start screen
 
 ## Gameplay Mechanics
 
@@ -46,13 +50,25 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
   - Tap left or right of card to move one column in that direction
   - Tap the card to instantly drop it to lowest position in current column
 
-### Hand Formation
+### Hand Formation and Effects
 - Valid poker hands can be formed in two ways:
   - 5 cards in a horizontal row
   - 5 cards in a vertical column
-- Multiple hands can be evaluated simultaneously if formed
+- When a poker hand is formed:
+  - Game pauses for 3 seconds
+  - Matching cards pulse with a golden glow
+  - Notification appears showing hand type and points earned
+  - Multiple hands show total points earned
+  - Cards "explode" with animation before being removed
+  - After removal, cards above fall down to fill empty spaces
+- Multiple hands can be evaluated simultaneously
 - Cards not part of a winning hand remain on the board
 - Matched cards are removed and returned to the deck
+- Gravity affects remaining cards:
+  - Cards above removed matches fall down
+  - Cards continue falling until they hit another card or the bottom
+  - Multiple cards can fall simultaneously
+  - New matches can form after cards fall
 
 ### Scoring System
 Poker hand rankings and their corresponding points:
@@ -89,3 +105,8 @@ The game ends when:
 - Cards from completed hands return to deck
 - High score tracking with initials
 - Persistent storage of high scores
+- Visual feedback for poker hands:
+  - Hand type notification
+  - Points earned display
+  - Card highlight effects
+  - Explosion animations

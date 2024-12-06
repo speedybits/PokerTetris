@@ -3,6 +3,8 @@ class Game {
         this.initializeScreens();
         this.resetGame();
         this.initializeControls();
+        this.baseDropInterval = 500; // Base speed of 1 second
+        this.minDropInterval = 200;   // Maximum speed (minimum interval) of 0.2 seconds
     }
 
     initializeScreens() {
@@ -35,7 +37,7 @@ class Game {
         this.currentY = 0;
         this.nextCard = this.deck.draw();
         this.gameOver = false;
-        this.dropInterval = 1000;
+        this.dropInterval = this.baseDropInterval;
         this.lastDrop = 0;
     }
 
@@ -54,59 +56,72 @@ class Game {
     }
 
     initializeControls() {
-        // Touch areas for left/right movement
-        document.getElementById('touch-left').addEventListener('touchstart', (e) => {
+        // Touch controls
+        const gameContainer = document.getElementById('game-container');
+        const touchLeft = document.getElementById('touch-left');
+        const touchRight = document.getElementById('touch-right');
+        const gameBoard = document.getElementById('game-board');
+
+        // Prevent default touch behavior
+        [gameContainer, touchLeft, touchRight, gameBoard].forEach(element => {
+            element.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+            element.addEventListener('touchend', (e) => e.preventDefault());
+        });
+
+        // Left touch area
+        touchLeft.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (this.gameOver) return;
             if (this.board.isValidPosition(this.currentX - 1, this.currentY)) {
                 this.currentX--;
             }
-        });
+        }, { passive: false });
 
-        document.getElementById('touch-right').addEventListener('touchstart', (e) => {
+        // Right touch area
+        touchRight.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (this.gameOver) return;
             if (this.board.isValidPosition(this.currentX + 1, this.currentY)) {
                 this.currentX++;
             }
-        });
+        }, { passive: false });
 
-        // Game board for instant drop
-        document.getElementById('game-board').addEventListener('touchstart', (e) => {
+        // Quick drop on game board touch
+        gameBoard.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (this.gameOver) return;
 
-            const rect = e.target.getBoundingClientRect();
+            const rect = gameBoard.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
             const column = Math.floor((touchX / rect.width) * this.board.width);
-
+            
             if (column >= 0 && column < this.board.width) {
                 this.dropToColumn(column);
             }
-        });
+        }, { passive: false });
 
         // Mouse controls for testing
-        document.getElementById('touch-left').addEventListener('click', (e) => {
+        touchLeft.addEventListener('click', (e) => {
             if (this.gameOver) return;
             if (this.board.isValidPosition(this.currentX - 1, this.currentY)) {
                 this.currentX--;
             }
         });
 
-        document.getElementById('touch-right').addEventListener('click', (e) => {
+        touchRight.addEventListener('click', (e) => {
             if (this.gameOver) return;
             if (this.board.isValidPosition(this.currentX + 1, this.currentY)) {
                 this.currentX++;
             }
         });
 
-        document.getElementById('game-board').addEventListener('click', (e) => {
+        gameBoard.addEventListener('click', (e) => {
             if (this.gameOver) return;
-
-            const rect = e.target.getBoundingClientRect();
+            
+            const rect = gameBoard.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const column = Math.floor((clickX / rect.width) * this.board.width);
-
+            
             if (column >= 0 && column < this.board.width) {
                 this.dropToColumn(column);
             }
@@ -177,13 +192,135 @@ class Game {
 
     checkForMatches() {
         const hands = this.board.checkForPokerHands();
-        hands.forEach(hand => {
-            const score = this.evaluatePokerHand(hand.cards);
-            this.score += score;
-            this.board.removeCards(hand.positions);
-            hand.cards.forEach(card => this.deck.addCard(card));
+        if (hands.length > 0) {
+            // Create and show the poker hand notification
+            const notification = document.createElement('div');
+            notification.className = 'poker-notification';
+            
+            // Process each hand
+            let totalScore = 0;
+            const handMessages = hands.map(hand => {
+                const score = this.evaluatePokerHand(hand.cards);
+                const handName = this.getPokerHandName(hand.cards);
+                totalScore += score;
+                
+                // Highlight the matching cards
+                hand.positions.forEach(pos => {
+                    const cell = this.board.element.children[pos.y * this.board.width + pos.x];
+                    const card = cell.firstChild;
+                    if (card) {
+                        card.classList.add('matching');
+                    }
+                });
+                
+                return `${handName}: ${score} points!`;
+            });
+
+            notification.innerHTML = handMessages.join('<br>');
+            if (hands.length > 1) {
+                notification.innerHTML += `<br>Total: ${totalScore} points!`;
+            }
+            document.getElementById('game-container').appendChild(notification);
+
+            // Pause for 3 seconds, then remove cards with explosion effect
+            setTimeout(() => {
+                hands.forEach(hand => {
+                    // Add explosion effect to each card
+                    hand.positions.forEach(pos => {
+                        const cell = this.board.element.children[pos.y * this.board.width + pos.x];
+                        const card = cell.firstChild;
+                        if (card) {
+                            card.classList.add('exploding');
+                        }
+                    });
+                });
+
+                // Wait for explosion animation, then remove cards and apply gravity
+                setTimeout(() => {
+                    hands.forEach(hand => {
+                        const score = this.evaluatePokerHand(hand.cards);
+                        this.score += score;
+                        hand.cards.forEach(card => this.deck.addCard(card));
+                    });
+                    
+                    // Remove all matched cards at once
+                    const allPositions = hands.flatMap(hand => hand.positions);
+                    this.board.removeCards(allPositions);
+                    
+                    // Update speed based on score
+                    this.dropInterval = Math.max(
+                        this.minDropInterval,
+                        this.baseDropInterval - Math.floor(this.score / 1000) * 50
+                    );
+                    
+                    document.getElementById('score').textContent = this.score;
+                    notification.remove();
+
+                    // Check for new matches after cards have fallen
+                    setTimeout(() => {
+                        this.checkForMatches();
+                    }, 500); // Wait for cards to finish falling
+                }, 500); // Explosion animation duration
+            }, 3000); // Display duration
+        }
+    }
+
+    getPokerHandName(cards) {
+        // Sort cards by value for easier evaluation
+        cards.sort((a, b) => a.value - b.value);
+        
+        // Check for flush (all same suit)
+        const isFlush = cards.every(card => card.suit === cards[0].suit);
+        
+        // Check for straight (consecutive values)
+        let isStraight = true;
+        for (let i = 1; i < cards.length; i++) {
+            if (cards[i].value !== cards[i-1].value + 1) {
+                // Special case for Ace-high straight
+                if (i === cards.length - 1 && cards[0].value === 1 && cards[1].value === 10) {
+                    continue;
+                }
+                isStraight = false;
+                break;
+            }
+        }
+
+        // Count card values for pairs, three of a kind, etc.
+        const valueCounts = {};
+        cards.forEach(card => {
+            valueCounts[card.value] = (valueCounts[card.value] || 0) + 1;
         });
-        document.getElementById('score').textContent = this.score;
+        const counts = Object.values(valueCounts);
+
+        // Check hand types in descending order of value
+        if (isFlush && isStraight && cards[0].value === 1 && cards[4].value === 13) {
+            return "Royal Flush";
+        }
+        if (isFlush && isStraight) {
+            return "Straight Flush";
+        }
+        if (counts.includes(4)) {
+            return "Four of a Kind";
+        }
+        if (counts.includes(3) && counts.includes(2)) {
+            return "Full House";
+        }
+        if (isFlush) {
+            return "Flush";
+        }
+        if (isStraight) {
+            return "Straight";
+        }
+        if (counts.includes(3)) {
+            return "Three of a Kind";
+        }
+        if (counts.filter(count => count === 2).length === 2) {
+            return "Two Pair";
+        }
+        if (counts.includes(2)) {
+            return "One Pair";
+        }
+        return "High Card";
     }
 
     evaluatePokerHand(cards) {

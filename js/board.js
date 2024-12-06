@@ -58,6 +58,35 @@ class Board {
         return false;
     }
 
+    removeCards(positions) {
+        // Remove the cards from their positions
+        positions.forEach(pos => {
+            this.grid[pos.y][pos.x] = null;
+        });
+        
+        // Apply gravity to make cards fall
+        this.applyGravity();
+    }
+
+    applyGravity() {
+        // Process each column independently
+        for (let x = 0; x < this.width; x++) {
+            let writePos = this.height - 1; // Start from bottom
+            
+            // Read from bottom to top
+            for (let y = this.height - 1; y >= 0; y--) {
+                if (this.grid[y][x] !== null) {
+                    // If we found a card and it needs to move down
+                    if (writePos !== y) {
+                        this.grid[writePos][x] = this.grid[y][x];
+                        this.grid[y][x] = null;
+                    }
+                    writePos--;
+                }
+            }
+        }
+    }
+
     checkForPokerHands() {
         const hands = [];
         // Check horizontal hands
@@ -81,13 +110,5 @@ class Board {
         }
 
         return hands;
-    }
-
-    removeCards(positions) {
-        positions.forEach(({x, y}) => {
-            this.grid[y][x] = null;
-        });
-        // Update display after removing cards
-        this.updateDisplay(this.grid);
     }
 } 
