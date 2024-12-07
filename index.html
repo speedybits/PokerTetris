@@ -147,9 +147,22 @@
             color: black;
             font-weight: bold;
             border-radius: 3px;
+            border: 1px solid #ccc;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             font-size: min(5vh, 32px);
             line-height: 1;
+        }
+
+        .highlight-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 5px solid red;
+            background-color: rgba(255, 255, 0, 0.3);
+            pointer-events: none;
+            z-index: 200;
         }
 
         .card.red {
@@ -281,33 +294,25 @@
             to { opacity: 1; transform: translate(-50%, -50%); }
         }
 
-        /* Card matching and explosion effects */
-        .card.matching {
-            animation: pulse 0.5s ease-in-out infinite alternate;
+        /* Test style to verify CSS loading */
+        .test-highlight {
+            background-color: yellow !important;
+        }
+
+        /* Card matching styles - high specificity */
+        #game-board .card-cell .card.matching {
+            border: 3px solid #f1c40f !important;
+            box-shadow: 0 0 10px #f1c40f !important;
+            background-color: #fff7e6 !important;
+            z-index: 100;
         }
 
         .card.exploding {
-            animation: explode 0.5s ease-out forwards;
-        }
-
-        @keyframes pulse {
-            from { transform: scale(1); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-            to { transform: scale(1.1); box-shadow: 0 4px 8px rgba(255,215,0,0.5); }
-        }
-
-        @keyframes explode {
-            0% { 
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.5) rotate(10deg);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(0) rotate(25deg);
-                opacity: 0;
-            }
+            transform: scale(3);
+            opacity: 0;
+            z-index: 100;
+            transition: transform 2s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                      opacity 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
     </style>
 </head>

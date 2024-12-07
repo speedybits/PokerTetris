@@ -6,6 +6,9 @@ class Game {
         this.baseDropInterval = 500; // Base speed of 1 second
         this.minDropInterval = 200;   // Maximum speed (minimum interval) of 0.2 seconds
         this.isPaused = false;  // Add pause state
+
+        // Add keyboard event listener
+        document.addEventListener('keydown', this.handleKeyPress.bind(this));
     }
 
     initializeScreens() {
@@ -188,31 +191,43 @@ class Game {
 
     lockCard() {
         this.board.placeCard(this.currentCard, this.currentX, this.currentY);
-        this.checkForMatches();
+        
+        // Wait for any falling animations to complete before checking matches
+        setTimeout(() => {
+            this.checkForMatches();
+        }, 1000); // 1 second delay to match the falling animation duration
+
         this.spawnCard();
     }
 
     checkForMatches() {
         const hands = this.board.checkForPokerHands();
+        console.log('Checking for hands:', hands);
+        
         if (hands.length > 0) {
-            // Pause the game while showing notification
+            console.log('Found hands:', hands.length);
             this.isPaused = true;
             
-            // Process each hand
             let totalScore = 0;
             const handResults = hands.map(hand => {
                 const result = this.evaluatePokerHand(hand.cards);
-                if (result.score === 0) return null; // Skip if no valid poker hand
-
-                // Map the indices to the actual positions to remove
-                const positionsToRemove = result.cardsToRemove.map(idx => hand.positions[idx]);
+                console.log('Evaluated hand:', result);
                 
-                // Highlight only the matching cards
+                if (result.score === 0) return null;
+
+                const positionsToRemove = result.cardsToRemove.map(idx => hand.positions[idx]);
+                console.log('Positions to remove:', positionsToRemove);
+                
+                // Start matching animation
                 positionsToRemove.forEach(pos => {
                     const cell = this.board.element.children[pos.y * this.board.width + pos.x];
-                    const card = cell.firstChild;
-                    if (card) {
+                    console.log('Found cell:', cell);
+                    if (cell.firstChild) {
+                        const card = cell.firstChild;
+                        console.log('Animating card:', card.textContent);
+                        // Apply initial scale animation
                         card.classList.add('matching');
+                        console.log('Applied initial animation styles');
                     }
                 });
 
@@ -225,12 +240,15 @@ class Game {
                 };
             }).filter(result => result !== null);
 
+            console.log('Processed hand results:', handResults);
+
             if (handResults.length === 0) {
+                console.log('No valid hands found');
                 this.isPaused = false;
                 return;
             }
 
-            // Create and show the poker hand notification
+            // Show notification
             const notification = document.createElement('div');
             notification.className = 'poker-notification';
             notification.innerHTML = handResults.map(result => result.message).join('<br>');
@@ -238,55 +256,87 @@ class Game {
                 notification.innerHTML += `<br>Total: ${totalScore} points!`;
             }
             document.getElementById('game-container').appendChild(notification);
+            console.log('Added notification:', notification.innerHTML);
 
-            // Pause for 3 seconds, then remove cards with explosion effect
+            // Highlight matching cards
+            handResults.forEach(result => {
+                result.positions.forEach(pos => {
+                    const cell = this.board.element.children[pos.y * this.board.width + pos.x];
+                    if (cell.firstChild) {
+                        const card = cell.firstChild;
+                        console.log('Starting animation for card:', card.textContent);
+                        
+                        // Make card much larger and red
+                        card.style.transform = 'scale(1.5)';
+                        card.style.backgroundColor = 'red';
+                        card.style.transition = 'all 1s ease-in-out';
+                        card.style.zIndex = '1000';
+                        console.log('Applied initial animation styles');
+                        
+                        // After 1 second, start pulsing
+                        setTimeout(() => {
+                            card.style.animation = 'pulse 0.5s ease-in-out infinite';
+                            card.style.backgroundColor = 'yellow';
+                            console.log('Started pulsing animation');
+                        }, 1000);
+                    }
+                });
+            });
+
+            // Add pulse animation if it doesn't exist
+            if (!document.querySelector('#pulse-animation')) {
+                const style = document.createElement('style');
+                style.id = 'pulse-animation';
+                style.textContent = `
+                    @keyframes pulse {
+                        0% { transform: scale(1.5); }
+                        50% { transform: scale(1.8); }
+                        100% { transform: scale(1.5); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // After 3 seconds, remove cards
             setTimeout(() => {
+                console.log('Starting card removal sequence');
                 handResults.forEach(result => {
-                    // Add explosion effect to each card
                     result.positions.forEach(pos => {
                         const cell = this.board.element.children[pos.y * this.board.width + pos.x];
-                        const card = cell.firstChild;
-                        if (card) {
-                            card.classList.add('exploding');
+                        if (cell.firstChild) {
+                            console.log('Removing card:', cell.firstChild.textContent);
+                            cell.firstChild.remove();
                         }
                     });
+                    
+                    this.score += result.score;
+                    result.cards.forEach(card => this.deck.addCard(card));
                 });
+                
+                const allPositions = handResults.flatMap(result => result.positions);
+                this.board.removeCards(allPositions);
+                console.log('Cards removed, applying gravity');
+                
+                document.getElementById('score').textContent = this.score;
+                notification.remove();
+                console.log('Notification removed');
 
-                // Wait for explosion animation, then remove cards and apply gravity
+                // Wait longer for cards to settle after gravity
                 setTimeout(() => {
-                    handResults.forEach(result => {
-                        this.score += result.score;
-                        result.cards.forEach(card => this.deck.addCard(card));
-                    });
-                    
-                    // Remove all matched cards at once
-                    const allPositions = handResults.flatMap(result => result.positions);
-                    this.board.removeCards(allPositions);
-                    
-                    // Update speed based on score
-                    this.dropInterval = Math.max(
-                        this.minDropInterval,
-                        this.baseDropInterval - Math.floor(this.score / 1000) * 50
-                    );
-                    
-                    document.getElementById('score').textContent = this.score;
-                    notification.remove();
-
-                    // Check for new matches after cards have fallen
-                    setTimeout(() => {
-                        // Resume the game if no new matches are found
-                        const newHands = this.board.checkForPokerHands();
-                        if (newHands.length === 0) {
-                            this.isPaused = false;
-                        }
-                        this.checkForMatches();
-                    }, 500); // Wait for cards to finish falling
-                }, 500); // Explosion animation duration
-            }, 3000); // Display duration
+                    console.log('Cards have settled, checking for new hands');
+                    const newHands = this.board.checkForPokerHands();
+                    console.log('Found new hands:', newHands.length);
+                    if (newHands.length === 0) {
+                        this.isPaused = false;
+                        console.log('Game unpaused');
+                    }
+                    this.checkForMatches();
+                }, 1500); // Increased from 1000 to 1500 to ensure cards have settled
+            }, 3000);
         }
     }
 
-    evaluatePokerHand(cards, positions) {
+    evaluatePokerHand(cards) {
         // Sort cards by value for easier evaluation
         const sortedCards = [...cards].sort((a, b) => a.value - b.value);
         
@@ -315,20 +365,19 @@ class Game {
         });
         const counts = Object.values(valueCounts).map(v => v.count);
 
-        // Royal Flush or Straight Flush
+        // Royal Flush
+        if (isFlush && isStraight && sortedCards[0].value === 1 && sortedCards[4].value === 13) {
+            return { score: 2000, cardsToRemove: [0, 1, 2, 3, 4], name: "Royal Flush" };
+        }
+        // Straight Flush
         if (isFlush && isStraight) {
-            if (sortedCards[0].value === 1 && sortedCards[4].value === 13) {
-                return { score: 2000, cardsToRemove: [0, 1, 2, 3, 4], name: "Royal Flush" };
-            }
             return { score: 1000, cardsToRemove: [0, 1, 2, 3, 4], name: "Straight Flush" };
         }
-
         // Four of a Kind
-        const fourOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 4);
-        if (fourOfAKind) {
+        if (counts.includes(4)) {
+            const fourOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 4);
             return { score: 500, cardsToRemove: fourOfAKind[1].indices, name: "Four of a Kind" };
         }
-
         // Full House
         if (counts.includes(3) && counts.includes(2)) {
             const threeOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 3);
@@ -339,68 +388,85 @@ class Game {
                 name: "Full House" 
             };
         }
-
         // Flush
         if (isFlush) {
             return { score: 200, cardsToRemove: [0, 1, 2, 3, 4], name: "Flush" };
         }
-
         // Straight
         if (isStraight) {
             return { score: 150, cardsToRemove: [0, 1, 2, 3, 4], name: "Straight" };
         }
-
         // Three of a Kind
-        const threeOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 3);
-        if (threeOfAKind) {
+        if (counts.includes(3)) {
+            const threeOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 3);
             return { score: 100, cardsToRemove: threeOfAKind[1].indices, name: "Three of a Kind" };
         }
-
         // Two Pair
-        const pairs = Object.entries(valueCounts).filter(([_, v]) => v.count === 2);
-        if (pairs.length === 2) {
+        if (counts.filter(count => count === 2).length === 2) {
+            const pairs = Object.entries(valueCounts).filter(([_, v]) => v.count === 2);
             return { 
                 score: 50, 
                 cardsToRemove: [...pairs[0][1].indices, ...pairs[1][1].indices], 
                 name: "Two Pair" 
             };
         }
-
         // One Pair
         if (counts.includes(2)) {
             const pair = Object.entries(valueCounts).find(([_, v]) => v.count === 2);
             return { score: 25, cardsToRemove: pair[1].indices, name: "One Pair" };
         }
         
-        // No valid poker hand (less than one pair)
         return { score: 0, cardsToRemove: [], name: "No Hand" };
     }
 
     gameLoop() {
         const now = Date.now();
-        if (!this.isPaused && now - this.lastDrop > this.dropInterval) {
-            if (this.board.isValidPosition(this.currentX, this.currentY + 1)) {
-                this.currentY++;
-            } else {
-                this.lockCard();
+        
+        // Only update falling cards if the game isn't paused
+        if (!this.isPaused && !this.gameOver) {
+            if (now - this.lastDrop > this.dropInterval) {
+                if (this.board.isValidPosition(this.currentX, this.currentY + 1)) {
+                    this.currentY++;
+                } else {
+                    this.lockCard();
+                }
+                this.lastDrop = now;
             }
-            this.lastDrop = now;
+
+            // Get a clean copy of the locked cards
+            const displayGrid = this.board.grid.map(row => [...row]);
+
+            // Only add the current falling card to its current position
+            if (this.currentCard) {
+                displayGrid[this.currentY][this.currentX] = this.currentCard;
+            }
+
+            // Update the display with the current state
+            this.board.updateDisplay(displayGrid);
         }
-
-        // Get a clean copy of the locked cards
-        const displayGrid = this.board.grid.map(row => [...row]);
-
-        // Only add the current falling card to its current position
-        if (this.currentCard && !this.gameOver && !this.isPaused) {
-            displayGrid[this.currentY][this.currentX] = this.currentCard;
-        }
-
-        // Update the display with the current state
-        this.board.updateDisplay(displayGrid);
 
         if (!this.gameOver) {
             requestAnimationFrame(() => this.gameLoop());
         }
+    }
+
+    handleKeyPress(event) {
+        if (this.gameOver || this.isPaused) return;
+        
+        switch (event.code) {
+            case 'Space':
+                event.preventDefault(); // Prevent page scrolling
+                this.dropToBottom();
+                break;
+        }
+    }
+
+    dropToBottom() {
+        // Drop card to lowest possible position in current column
+        while (this.board.isValidPosition(this.currentX, this.currentY + 1)) {
+            this.currentY++;
+        }
+        this.lockCard();
     }
 }
 

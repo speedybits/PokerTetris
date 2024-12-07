@@ -64,11 +64,19 @@ class Board {
             this.grid[pos.y][pos.x] = null;
         });
         
-        // Apply gravity to make cards fall
-        this.applyGravity();
+        // Apply gravity and wait for cards to settle
+        const cardsMoved = this.applyGravity();
+        
+        // If cards moved due to gravity, they need time to settle
+        if (cardsMoved) {
+            console.log('Cards are falling, waiting for them to settle...');
+        } else {
+            console.log('No cards needed to fall');
+        }
     }
 
     applyGravity() {
+        let cardsMoved = false;
         // Process each column independently
         for (let x = 0; x < this.width; x++) {
             let writePos = this.height - 1; // Start from bottom
@@ -78,13 +86,26 @@ class Board {
                 if (this.grid[y][x] !== null) {
                     // If we found a card and it needs to move down
                     if (writePos !== y) {
-                        this.grid[writePos][x] = this.grid[y][x];
-                        this.grid[y][x] = null;
+                        cardsMoved = true;
+                        // Get the card element
+                        const cell = this.element.children[y * this.width + x];
+                        const cardElement = cell.firstChild;
+                        if (cardElement) {
+                            // Calculate the distance to move
+                            const distance = writePos - y;
+                            // Move the card to the new cell
+                            const targetCell = this.element.children[writePos * this.width + x];
+                            targetCell.appendChild(cardElement);
+                            // Update the grid
+                            this.grid[writePos][x] = this.grid[y][x];
+                            this.grid[y][x] = null;
+                        }
                     }
                     writePos--;
                 }
             }
         }
+        return cardsMoved;
     }
 
     checkForPokerHands() {
