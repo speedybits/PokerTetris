@@ -118,8 +118,10 @@
             height: 100vh;
             width: calc(100vh * 7/15 * 2.5/3.5);
             max-width: min(500px, 100vw - 20px);
-            background-color: #34495e;
-            border: 2px solid #95a5a6;
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border: 3px solid #95a5a6;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
+            border-radius: 10px;
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             grid-template-rows: repeat(15, 1fr);
@@ -131,7 +133,13 @@
             position: relative;
             width: 100%;
             height: 100%;
-            background-color: transparent;
+            background-color: rgba(52, 73, 94, 0.4);
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .card-cell:hover {
+            background-color: rgba(52, 73, 94, 0.6);
         }
 
         .card {
@@ -143,30 +151,76 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: white;
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
             color: black;
             font-weight: bold;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 3px rgba(255,255,255,0.9);
             font-size: min(5vh, 32px);
             line-height: 1;
+            transition: all 0.2s ease-out;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
         }
 
-        .highlight-overlay {
+        .card::before {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 5px solid red;
-            background-color: rgba(255, 255, 0, 0.3);
+            top: 5%;
+            left: 5%;
+            right: 5%;
+            bottom: 5%;
+            border-radius: 6px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
             pointer-events: none;
-            z-index: 200;
         }
 
         .card.red {
-            color: red;
+            color: #e74c3c;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+        }
+
+        /* Card hover effect */
+        .card:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 1px 3px rgba(255,255,255,0.9);
+        }
+
+        /* Card matching animation */
+        @keyframes cardMatch {
+            0% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+            50% { transform: scale(1.1); box-shadow: 0 8px 16px rgba(241, 196, 15, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        }
+
+        .card.matching {
+            animation: cardMatch 0.6s ease-in-out infinite;
+            border: 3px solid #f1c40f;
+            background: linear-gradient(135deg, #fff9c4 0%, #fff176 100%);
+            box-shadow: 0 0 20px #f1c40f;
+        }
+
+        /* Card explosion animation */
+        @keyframes cardExplode {
+            0% { 
+                transform: scale(1) rotate(0deg); 
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) rotate(180deg);
+                opacity: 0.5;
+                filter: hue-rotate(90deg) brightness(1.5);
+            }
+            100% { 
+                transform: scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .card.exploding {
+            animation: cardExplode 0.8s ease-out forwards;
+            box-shadow: 0 0 30px rgba(241, 196, 15, 0.8);
         }
 
         /* Game info overlay */
@@ -178,10 +232,13 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            background-color: rgba(52, 73, 94, 0.9);
+            background: linear-gradient(135deg, rgba(52, 73, 94, 0.95) 0%, rgba(44, 62, 80, 0.95) 100%);
             padding: 15px;
             border-radius: 10px;
             pointer-events: none;
+            border: 2px solid rgba(149, 165, 166, 0.3);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         #next-card {
@@ -278,17 +335,23 @@
         /* Poker hand notification */
         .poker-notification {
             position: absolute;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             color: white;
-            text-align: center;
-            font-size: 28px;
-            font-weight: bold;
-            background-color: rgba(52, 73, 94, 0.9);
             padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border-radius: 25px;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 1000;
+            animation: notificationPop 0.3s ease-out forwards;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
             pointer-events: none;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        @keyframes notificationPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         /* Test style to verify CSS loading */
@@ -296,44 +359,36 @@
             background-color: yellow !important;
         }
 
-        /* Card matching styles - high specificity */
-        #game-board .card-cell .card.matching {
-            border: 3px solid #f1c40f !important;
-            box-shadow: 0 0 10px #f1c40f !important;
-            background-color: #fff7e6 !important;
-            z-index: 100;
-        }
-
-        .card.exploding {
-            transform: scale(3);
-            opacity: 0;
-            z-index: 100;
-            transition: transform 2s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                      opacity 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
         /* Add Quick Drop button styles */
         #quick-drop {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
             position: absolute;
             bottom: 20px;
             right: 20px;
-            padding: 15px 25px;
-            font-size: 20px;
-            background-color: rgba(52, 73, 94, 0.9);
-            color: white;
-            border: 2px solid #95a5a6;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.2s;
             z-index: 100;
         }
 
         #quick-drop:hover {
-            background-color: rgba(52, 73, 94, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #3498db 20%, #2980b9 100%);
         }
 
         #quick-drop:active {
-            transform: scale(0.95);
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
     </style>
 </head>
