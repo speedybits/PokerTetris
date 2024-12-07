@@ -19,8 +19,8 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #2c3e50;
-            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a0f2e 0%, #2c1654 50%, #1a0f2e 100%);
+            font-family: 'Arial', sans-serif;
             color: white;
         }
 
@@ -68,6 +68,13 @@
         .high-scores {
             width: 100%;
             max-width: 500px;
+            border: 2px solid #ffd700;
+            background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
+            box-shadow: 
+                0 0 10px #ffd700,
+                0 0 20px rgba(255,215,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
         }
 
         .high-scores h2 {
@@ -77,27 +84,47 @@
         }
 
         .score-list {
-            background-color: rgba(52, 73, 94, 0.9);
+            background: rgba(26,15,46,0.8);
+            border: 1px solid #ffd700;
             border-radius: 10px;
             padding: 20px;
+            box-shadow: inset 0 0 20px rgba(255,215,0,0.1);
         }
 
         .score-item {
             display: flex;
             justify-content: space-between;
             margin: 10px 0;
-            font-size: 20px;
+            font-size: 22px;
+            color: #ffd700;
+            text-shadow: 0 0 5px rgba(255,215,0,0.5);
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
         }
 
         .start-button {
-            background-color: #27ae60;
+            background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
             color: white;
-            border: none;
-            padding: 20px 40px;
-            font-size: 24px;
-            border-radius: 10px;
+            border: 2px solid #fff;
+            padding: 25px 50px;
+            font-size: 28px;
+            border-radius: 40px;
             cursor: pointer;
+            box-shadow: 
+                0 0 10px #ff00de,
+                0 0 20px #ff00de;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
             margin-bottom: 40px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 20px #ff00de,
+                0 0 40px #ff00de;
         }
 
         /* Game Screen */
@@ -118,28 +145,31 @@
             height: 100vh;
             width: calc(100vh * 7/15 * 2.5/3.5);
             max-width: min(500px, 100vw - 20px);
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-            border: 3px solid #95a5a6;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
-            border-radius: 10px;
+            background: linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 15px #ffd700, inset 0 0 50px rgba(0,0,0,0.5);
+            border-radius: 15px;
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             grid-template-rows: repeat(15, 1fr);
             gap: 1px;
             padding: 1px;
+            animation: neonPulse 2s infinite;
         }
 
         .card-cell {
             position: relative;
             width: 100%;
             height: 100%;
-            background-color: rgba(52, 73, 94, 0.4);
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
+            background-color: rgba(30,15,46,0.4);
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+            border: 1px solid rgba(255,215,0,0.1);
         }
 
         .card-cell:hover {
-            background-color: rgba(52, 73, 94, 0.6);
+            background-color: rgba(45,27,78,0.6);
+            box-shadow: inset 0 0 10px rgba(255,215,0,0.1);
         }
 
         .card {
@@ -154,14 +184,16 @@
             background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
             color: black;
             font-weight: bold;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 3px rgba(255,255,255,0.9);
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
             font-size: min(5vh, 32px);
             line-height: 1;
-            transition: all 0.2s ease-out;
+            transition: all 0.3s ease-out;
             transform-style: preserve-3d;
             backface-visibility: hidden;
+            font-family: 'Arial Black', sans-serif;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
         }
 
         .card::before {
@@ -171,34 +203,37 @@
             left: 5%;
             right: 5%;
             bottom: 5%;
-            border-radius: 6px;
+            border-radius: 8px;
             background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
             pointer-events: none;
         }
 
         .card.red {
-            color: #e74c3c;
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+            color: #ff0000;
+            text-shadow: 0 0 5px rgba(255,0,0,0.3);
         }
 
         /* Card hover effect */
         .card:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 1px 3px rgba(255,255,255,0.9);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
         }
 
         /* Card matching animation */
         @keyframes cardMatch {
-            0% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-            50% { transform: scale(1.1); box-shadow: 0 8px 16px rgba(241, 196, 15, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+            0% { transform: scale(1); box-shadow: 0 0 10px #ffd700; }
+            50% { 
+                transform: scale(1.15); 
+                box-shadow: 0 0 30px #ffd700, 0 0 50px #ffd700;
+                background: linear-gradient(135deg, #fff9c4 0%, #ffd700 100%);
+            }
+            100% { transform: scale(1); box-shadow: 0 0 10px #ffd700; }
         }
 
         .card.matching {
-            animation: cardMatch 0.6s ease-in-out infinite;
-            border: 3px solid #f1c40f;
-            background: linear-gradient(135deg, #fff9c4 0%, #fff176 100%);
-            box-shadow: 0 0 20px #f1c40f;
+            animation: cardMatch 0.8s ease-in-out infinite;
+            border: 3px solid #ffd700;
+            background: linear-gradient(135deg, #fff9c4 0%, #ffd700 100%);
         }
 
         /* Card explosion animation */
@@ -208,9 +243,13 @@
                 opacity: 1;
             }
             50% {
-                transform: scale(1.5) rotate(180deg);
-                opacity: 0.5;
-                filter: hue-rotate(90deg) brightness(1.5);
+                transform: scale(2) rotate(180deg);
+                opacity: 0.8;
+                filter: hue-rotate(90deg) brightness(2);
+                box-shadow: 
+                    0 0 30px #ff00de,
+                    0 0 60px #ff00de,
+                    0 0 90px #ff00de;
             }
             100% { 
                 transform: scale(0) rotate(360deg);
@@ -219,8 +258,7 @@
         }
 
         .card.exploding {
-            animation: cardExplode 0.8s ease-out forwards;
-            box-shadow: 0 0 30px rgba(241, 196, 15, 0.8);
+            animation: cardExplode 1s ease-out forwards;
         }
 
         /* Game info overlay */
@@ -232,13 +270,16 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            background: linear-gradient(135deg, rgba(52, 73, 94, 0.95) 0%, rgba(44, 62, 80, 0.95) 100%);
+            background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
             padding: 15px;
             border-radius: 10px;
             pointer-events: none;
-            border: 2px solid rgba(149, 165, 166, 0.3);
-            backdrop-filter: blur(5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 2px solid #ffd700;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 0 10px #ffd700,
+                0 0 20px rgba(255,215,0,0.3);
+            animation: neonPulse 4s infinite;
         }
 
         #next-card {
@@ -335,22 +376,25 @@
         /* Poker hand notification */
         .poker-notification {
             position: absolute;
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 25px;
-            font-size: 24px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff9900 100%);
+            color: #1a0f2e;
+            padding: 20px 30px;
+            border-radius: 30px;
+            font-size: 28px;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 
+                0 0 10px #ffd700,
+                0 0 20px #ffd700,
+                0 0 30px #ffd700;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
+            animation: notificationPop 0.5s ease-out forwards;
+            border: 2px solid #fff;
             z-index: 1000;
-            animation: notificationPop 0.3s ease-out forwards;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            pointer-events: none;
         }
 
         @keyframes notificationPop {
             0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.2); }
             100% { transform: scale(1); opacity: 1; }
         }
 
@@ -361,19 +405,21 @@
 
         /* Add Quick Drop button styles */
         #quick-drop {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
             color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 20px;
-            border-radius: 25px;
+            border: 2px solid #fff;
+            padding: 20px 35px;
+            font-size: 22px;
+            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
+            box-shadow: 
+                0 0 10px #ff00de,
+                0 0 20px #ff00de;
+            transition: all 0.3s ease;
             text-transform: uppercase;
             font-weight: bold;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             position: absolute;
             bottom: 20px;
             right: 20px;
@@ -381,14 +427,28 @@
         }
 
         #quick-drop:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            background: linear-gradient(135deg, #3498db 20%, #2980b9 100%);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 20px #ff00de,
+                0 0 40px #ff00de;
+            background: linear-gradient(135deg, #ff00de 20%, #b300ff 100%);
         }
 
         #quick-drop:active {
             transform: translateY(1px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 0 10px #ff00de;
+        }
+
+        @keyframes neonPulse {
+            0% { box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff00de, 0 0 20px #ff00de; }
+            50% { box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 25px #ff00de, 0 0 30px #ff00de; }
+            100% { box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff00de, 0 0 20px #ff00de; }
+        }
+
+        @keyframes casinoBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
     </style>
 </head>
