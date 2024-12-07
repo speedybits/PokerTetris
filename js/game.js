@@ -192,10 +192,10 @@ class Game {
     lockCard() {
         this.board.placeCard(this.currentCard, this.currentX, this.currentY);
         
-        // Wait for any falling animations to complete before checking matches
+        // Quick initial match check
         setTimeout(() => {
             this.checkForMatches();
-        }, 1000); // 1 second delay to match the falling animation duration
+        }, 300); // Keep quick initial check
 
         this.spawnCard();
     }
@@ -251,12 +251,13 @@ class Game {
             // Show notification
             const notification = document.createElement('div');
             notification.className = 'poker-notification';
-            notification.innerHTML = handResults.map(result => result.message).join('<br>');
-            if (handResults.length > 1) {
-                notification.innerHTML += `<br>Total: ${totalScore} points!`;
+            if (handResults.length === 1) {
+                notification.textContent = `${handResults[0].message}`;
+            } else {
+                notification.textContent = `Multiple hands: ${totalScore} points!`;
             }
-            document.getElementById('game-container').appendChild(notification);
-            console.log('Added notification:', notification.innerHTML);
+            document.getElementById('game-info').appendChild(notification);
+            console.log('Added notification:', notification.textContent);
 
             // Highlight matching cards
             handResults.forEach(result => {
@@ -297,7 +298,7 @@ class Game {
                 document.head.appendChild(style);
             }
 
-            // After 3 seconds, remove cards
+            // After animation, remove cards (doubled duration)
             setTimeout(() => {
                 console.log('Starting card removal sequence');
                 handResults.forEach(result => {
@@ -321,7 +322,7 @@ class Game {
                 notification.remove();
                 console.log('Notification removed');
 
-                // Wait longer for cards to settle after gravity
+                // Quick check for new matches after gravity
                 setTimeout(() => {
                     console.log('Cards have settled, checking for new hands');
                     const newHands = this.board.checkForPokerHands();
@@ -331,8 +332,8 @@ class Game {
                         console.log('Game unpaused');
                     }
                     this.checkForMatches();
-                }, 1500); // Increased from 1000 to 1500 to ensure cards have settled
-            }, 3000);
+                }, 500); // Keep quick gravity settling time
+            }, 4000); // Doubled from 1000ms to 2000ms for longer animation
         }
     }
 

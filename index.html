@@ -176,6 +176,7 @@
             right: 10px;
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 10px;
             background-color: rgba(52, 73, 94, 0.9);
             padding: 15px;
@@ -184,8 +185,8 @@
         }
 
         #next-card {
-            width: 80px;
-            aspect-ratio: 2.5/3.5;
+            width: 60px;
+            height: 84px;  /* Using standard card ratio of 2.5:3.5 */
             background-color: #34495e;
             border: 2px solid #95a5a6;
             display: flex;
@@ -195,14 +196,16 @@
         }
 
         #next-card .card {
-            font-size: min(5vh, 32px);
+            position: relative;
             width: 90%;
             height: 90%;
+            top: auto;
+            left: auto;
         }
 
         #score-display {
             font-size: 24px;
-            text-align: right;
+            text-align: center;
             font-weight: bold;
         }
 
@@ -274,24 +277,10 @@
 
         /* Poker hand notification */
         .poker-notification {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(52, 73, 94, 0.95);
             color: white;
-            padding: 20px;
-            border-radius: 10px;
             text-align: center;
-            font-size: 24px;
-            z-index: 100;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translate(-50%, -60%); }
-            to { opacity: 1; transform: translate(-50%, -50%); }
+            font-size: 16px;
+            margin-top: 5px;
         }
 
         /* Test style to verify CSS loading */
