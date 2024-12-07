@@ -66,6 +66,46 @@ class Game {
         const touchLeft = document.getElementById('touch-left');
         const touchRight = document.getElementById('touch-right');
         const gameBoard = document.getElementById('game-board');
+        const quickDrop = document.getElementById('quick-drop');
+
+        console.log('Quick Drop button found:', quickDrop !== null);  // Debug if button exists
+
+        // Quick Drop button handler
+        if (quickDrop) {
+            console.log('Setting up Quick Drop button');
+            // Add both click and touchstart events for better mobile response
+            ['click', 'touchstart'].forEach(eventType => {
+                const handler = function(e) {
+                    e.preventDefault();
+                    console.log(`Quick Drop activated via button (${eventType})`);
+                    if (!this.gameOver && !this.isPaused) {
+                        this.dropToBottom();
+                    }
+                };
+                quickDrop.addEventListener(eventType, handler.bind(this));
+                console.log(`Added ${eventType} listener to Quick Drop button`);
+            });
+
+            // Also add direct onclick handler as backup
+            const onClickHandler = function(e) {
+                e.preventDefault();
+                console.log('Quick Drop activated via onclick');
+                if (!this.gameOver && !this.isPaused) {
+                    this.dropToBottom();
+                }
+            };
+            quickDrop.onclick = onClickHandler.bind(this);
+        } else {
+            console.error('Quick Drop button not found in DOM');
+        }
+
+        // Log all button properties to ensure it's properly set up
+        console.log('Quick Drop button properties:', {
+            id: quickDrop.id,
+            onclick: quickDrop.onclick,
+            listeners: quickDrop.getEventListeners,
+            style: quickDrop.style.display
+        });
 
         // Prevent default touch behavior
         [gameContainer, touchLeft, touchRight, gameBoard].forEach(element => {
@@ -131,6 +171,10 @@ class Game {
                 this.dropToColumn(column);
             }
         });
+
+        // Test that dropToBottom is working
+        this.dropToBottom = this.dropToBottom.bind(this);
+        console.log('dropToBottom method bound:', typeof this.dropToBottom);  // Debug log
     }
 
     dropToColumn(column) {
@@ -253,10 +297,54 @@ class Game {
             notification.className = 'poker-notification';
             if (handResults.length === 1) {
                 notification.textContent = `${handResults[0].message}`;
+                
+                // Calculate position based on matched cards
+                const positions = handResults[0].positions;
+                const isVertical = positions[0].x === positions[1].x;
+                const gameBoard = document.getElementById('game-board');
+                const boardRect = gameBoard.getBoundingClientRect();
+                
+                // Calculate average position of matched cards
+                const avgX = positions.reduce((sum, pos) => sum + pos.x, 0) / positions.length;
+                const avgY = positions.reduce((sum, pos) => sum + pos.y, 0) / positions.length;
+                
+                // Convert grid position to pixels
+                const cellWidth = boardRect.width / this.board.width;
+                const cellHeight = boardRect.height / this.board.height;
+                const pixelX = boardRect.left + (avgX * cellWidth);
+                const pixelY = boardRect.top + (avgY * cellHeight);
+                
+                // Position notification based on match orientation
+                if (isVertical) {
+                    // For vertical matches, place notification to the right
+                    notification.style.left = `${pixelX + cellWidth * 1.5}px`;
+                    notification.style.top = `${pixelY}px`;
+                } else {
+                    // For horizontal matches, place notification above
+                    notification.style.left = `${pixelX}px`;
+                    notification.style.top = `${pixelY - cellHeight * 1.5}px`;
+                }
+                
+                // Ensure notification stays within viewport
+                setTimeout(() => {
+                    const notifRect = notification.getBoundingClientRect();
+                    if (notifRect.right > window.innerWidth) {
+                        notification.style.left = `${pixelX - notifRect.width - cellWidth * 0.5}px`;
+                    }
+                    if (notifRect.top < 0) {
+                        notification.style.top = `${pixelY + cellHeight * 1.5}px`;
+                    }
+                }, 0);
             } else {
                 notification.textContent = `Multiple hands: ${totalScore} points!`;
+                // For multiple hands, center in the game board
+                const gameBoard = document.getElementById('game-board');
+                const boardRect = gameBoard.getBoundingClientRect();
+                notification.style.left = `${boardRect.left + boardRect.width / 2 - 100}px`;
+                notification.style.top = `${boardRect.top + boardRect.height / 2}px`;
             }
-            document.getElementById('game-info').appendChild(notification);
+            
+            document.body.appendChild(notification);
             console.log('Added notification:', notification.textContent);
 
             // Highlight matching cards
@@ -457,17 +545,22 @@ class Game {
         switch (event.code) {
             case 'Space':
                 event.preventDefault(); // Prevent page scrolling
+                console.log('Quick Drop activated via spacebar');
                 this.dropToBottom();
                 break;
         }
     }
 
     dropToBottom() {
-        // Drop card to lowest possible position in current column
-        while (this.board.isValidPosition(this.currentX, this.currentY + 1)) {
-            this.currentY++;
+        console.log('Starting dropToBottom');
+        if (!this.gameOver && !this.isPaused) {
+            let initialY = this.currentY;
+            while (this.board.isValidPosition(this.currentX, this.currentY + 1)) {
+                this.currentY++;
+            }
+            console.log(`Card dropped from row ${initialY} to row ${this.currentY}`);
+            this.lockCard();
         }
-        this.lockCard();
     }
 }
 
