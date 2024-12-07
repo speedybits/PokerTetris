@@ -136,15 +136,20 @@
             width: 100%;
             height: 100%;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
             position: relative;
         }
 
         #game-board {
-            height: 100vh;
-            width: calc(100vh * 7/15 * 2.5/3.5);
-            max-width: min(500px, 100vw - 20px);
+            /* Calculate width first based on viewport width */
+            width: 100vw;  /* Start with full viewport width */
+            /* Then calculate height based on width to maintain 7:15 ratio */
+            height: calc(100vw * 15/7);  /* This maintains the grid ratio */
+            max-height: 82vh;  /* Limit height to not overflow */
+            /* If height is limited, recalculate width */
+            width: calc(82vh * 7/15);  /* This maintains the grid ratio when height is constrained */
             background: linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
             border: 4px solid #ffd700;
             box-shadow: 0 0 15px #ffd700, inset 0 0 50px rgba(0,0,0,0.5);
@@ -154,7 +159,7 @@
             grid-template-rows: repeat(15, 1fr);
             gap: 1px;
             padding: 1px;
-            animation: neonPulse 2s infinite;
+            margin: 5px 0;
         }
 
         .card-cell {
@@ -263,55 +268,51 @@
 
         /* Game info overlay */
         #game-info {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+            width: auto;  /* Let content determine width */
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
-            padding: 15px;
-            border-radius: 10px;
-            pointer-events: none;
+            padding: 5px 15px;
+            border-radius: 12px;
             border: 2px solid #ffd700;
             backdrop-filter: blur(10px);
             box-shadow: 
                 0 0 10px #ffd700,
                 0 0 20px rgba(255,215,0,0.3);
-            animation: neonPulse 4s infinite;
-        }
-
-        #next-card {
-            width: 60px;
-            height: 84px;  /* Using standard card ratio of 2.5:3.5 */
-            background-color: #34495e;
-            border: 2px solid #95a5a6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            height: 8vh;
             margin-bottom: 5px;
         }
 
-        #next-card .card {
-            position: relative;
-            width: 90%;
-            height: 90%;
-            top: auto;
-            left: auto;
+        #next-card {
+            width: calc(8vh * 2.5/3.5);
+            height: calc(8vh - 10px);
+            background-color: #34495e;
+            border: 2px solid #ffd700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255,215,0,0.2);
         }
 
         #score-display {
-            font-size: 24px;
+            font-size: 2.5vh;
             text-align: center;
             font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+            margin: 0;
+            white-space: nowrap;
         }
 
         /* Touch areas */
         .touch-area {
             position: absolute;
-            top: 0;
-            bottom: 0;
+            top: 8vh;  /* Start after the game info */
+            bottom: 5vh;  /* Leave space for Quick Drop button */
             width: 50%;
             opacity: 0;
         }
@@ -405,12 +406,13 @@
 
         /* Add Quick Drop button styles */
         #quick-drop {
+            width: auto;
             background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
             color: white;
             border: 2px solid #fff;
-            padding: 20px 35px;
-            font-size: 22px;
-            border-radius: 30px;
+            padding: 8px 16px;
+            font-size: 2vh;
+            border-radius: 20px;
             cursor: pointer;
             box-shadow: 
                 0 0 10px #ff00de,
@@ -418,12 +420,11 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
+            margin-top: 5px;
+            height: 5vh;
+            z-index: 100;  /* Ensure button is above touch areas */
         }
 
         #quick-drop:hover {
@@ -450,6 +451,14 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+
+        /* Media query for mobile devices */
+        @media screen and (max-width: 480px) {
+            #game-board {
+                max-height: 75vh;  /* Slightly smaller on mobile */
+                width: calc(75vh * 7/15);  /* Maintain ratio */
+            }
+        }
     </style>
 </head>
 <body>
@@ -467,13 +476,13 @@
     <!-- Game Screen -->
     <div id="game-screen" class="screen">
         <div id="game-container">
-            <div id="game-board"></div>
-            <div id="touch-left" class="touch-area"></div>
-            <div id="touch-right" class="touch-area"></div>
             <div id="game-info">
                 <div id="next-card"></div>
                 <div id="score-display">Score: <span id="score">0</span></div>
             </div>
+            <div id="game-board"></div>
+            <div id="touch-left" class="touch-area"></div>
+            <div id="touch-right" class="touch-area"></div>
             <button id="quick-drop">Quick Drop</button>
         </div>
     </div>
