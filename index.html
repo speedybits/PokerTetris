@@ -142,31 +142,31 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            padding-top: calc(8vh + 10px);
-            padding-bottom: 20px;
+            padding-top: calc(6vh + 5px);
+            padding-bottom: 10px;
         }
 
         #game-board {
-            width: 96vw;
-            height: calc(96vw * 10/5);
-            max-height: 78vh;
+            width: 90vw;
+            height: calc(90vw * 10/5);
+            max-height: 65vh;
             background: linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
-            border: 4px solid #ffd700;
-            box-shadow: 0 0 15px #ffd700, inset 0 0 50px rgba(0,0,0,0.5);
-            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 10px #ffd700, inset 0 0 30px rgba(0,0,0,0.5);
+            border-radius: 12px;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(10, 1fr);
-            gap: 3px;
-            padding: 3px;
+            gap: 2px;
+            padding: 2px;
             margin: 0;
         }
 
         /* If height would exceed max-height, recalculate width to maintain ratio */
         @media (min-aspect-ratio: 5/10) {
             #game-board {
-                width: calc(78vh * 5/10);
-                height: 78vh;
+                width: calc(65vh * 5/10);
+                height: 65vh;
             }
         }
 
@@ -282,54 +282,54 @@
         /* Game info panel - Next Card */
         #game-info {
             position: fixed;
-            top: 10px;
-            left: 10px;
+            top: 5px;
+            left: 5px;
             display: flex;
             flex-direction: row;
             justify-content: flex-start;
             align-items: center;
             background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
-            padding: 5px 15px;
-            border-radius: 12px;
+            padding: 3px 10px;
+            border-radius: 10px;
             border: 2px solid #ffd700;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 0 10px #ffd700, 0 0 20px rgba(255,215,0,0.3);
-            height: 8vh;
+            box-shadow: 0 0 8px #ffd700, 0 0 15px rgba(255,215,0,0.3);
+            height: 6vh;
             z-index: 100;
         }
 
         #next-card {
-            width: calc(8vh * 2.5/3.5);
-            height: calc(8vh - 10px);
-            background: #34495e;  /* Solid fallback */
+            width: calc(6vh * 2.5/3.5);
+            height: calc(6vh - 8px);
+            background: #34495e;
             border: 2px solid #ffd700;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(255,215,0,0.2);
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(255,215,0,0.2);
         }
 
         /* Score display - upper right */
         #score-display {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 5px;
+            right: 5px;
             background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
-            padding: 5px 15px;
-            border-radius: 12px;
+            padding: 3px 10px;
+            border-radius: 10px;
             border: 2px solid #ffd700;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 0 10px #ffd700, 0 0 20px rgba(255,215,0,0.3);
-            font-size: 24px;
+            box-shadow: 0 0 8px #ffd700, 0 0 15px rgba(255,215,0,0.3);
+            font-size: 20px;
             font-weight: bold;
             color: #ffd700;
-            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+            text-shadow: 0 0 8px rgba(255,215,0,0.5);
             z-index: 100;
             white-space: nowrap;
-            height: 8vh;
+            height: 6vh;
             display: flex;
             align-items: center;
         }
@@ -439,22 +439,22 @@
             background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
             color: white;
             border: 2px solid #fff;
-            padding: 8px 16px;
-            font-size: 2vh;
-            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 1.8vh;
+            border-radius: 15px;
             cursor: pointer;
             box-shadow: 
-                0 0 10px #ff00de,
-                0 0 20px #ff00de;
+                0 0 8px #ff00de,
+                0 0 15px #ff00de;
             transition: all 0.3s ease;
             text-transform: uppercase;
             font-weight: bold;
             letter-spacing: 1px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-top: 10px;
-            margin-bottom: 20px;
+            margin-top: 8px;
+            margin-bottom: 12px;
             height: auto;
-            min-height: 40px;
+            min-height: 32px;
         }
 
         #quick-drop:hover {
@@ -522,6 +522,44 @@
                 margin-top: 8px;
                 margin-bottom: 15px;
                 padding: 8px 12px;
+            }
+        }
+
+        /* Media query for iPhone SE and similar small devices */
+        @media screen and (max-width: 380px) and (max-height: 670px) {
+            #game-board {
+                width: 92vw;
+                height: calc(92vw * 10/5);
+                max-height: 60vh;  /* Even smaller for very small screens */
+            }
+
+            #game-container {
+                padding-top: calc(6vh + 2px);
+            }
+
+            .card .number {
+                font-size: min(4.5vw, 24px);
+            }
+
+            .card .suit {
+                font-size: min(4vw, 20px);
+            }
+
+            #quick-drop {
+                margin-top: 6px;
+                margin-bottom: 8px;
+                padding: 4px 10px;
+                min-height: 28px;
+                font-size: 1.6vh;
+            }
+
+            #game-info, #score-display {
+                height: 5vh;
+            }
+
+            #next-card {
+                width: calc(5vh * 2.5/3.5);
+                height: calc(5vh - 6px);
             }
         }
     </style>
