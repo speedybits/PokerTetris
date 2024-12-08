@@ -189,36 +189,38 @@
         .card {
             position: absolute;
             top: 2%;
-            left: 2%;
-            width: 96%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 71.4%;  /* This will give us a 1:1.4 ratio with the height */
             height: 96%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
             color: black;
             font-weight: bold;
-            border-radius: 15px;
-            border: 3px solid #ddd;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.9);
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.9);
             font-family: Arial, sans-serif;
-            padding: 3px;
+            padding: 8% 4%;
             text-align: center;
         }
 
         .card .number {
-            font-size: min(7vw, 36px);  /* Slightly reduced for more rows */
+            font-size: min(5vw, 28px);
             line-height: 1;
             font-weight: bold;
             display: block;
+            margin-top: 5%;
         }
 
         .card .suit {
-            font-size: min(6vw, 32px);  /* Slightly reduced for more rows */
+            font-size: min(4.5vw, 24px);
             line-height: 1;
             display: block;
-            margin-top: -2px;
+            margin-bottom: 5%;
         }
 
         .card.red {
