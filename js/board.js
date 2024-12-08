@@ -1,7 +1,7 @@
 class Board {
     constructor() {
-        this.width = 7;
-        this.height = 15;
+        this.width = 5;
+        this.height = 10;
         this.grid = Array(this.height).fill().map(() => Array(this.width).fill(null));
         this.element = document.getElementById('game-board');
         this.initializeBoard();

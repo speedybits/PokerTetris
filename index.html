@@ -142,24 +142,31 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            padding-top: calc(8vh + 20px);  /* Height of info panels plus spacing */
+            padding-top: calc(8vh + 20px);
         }
 
         #game-board {
-            width: 100vw;
-            height: calc(100vw * 15/7);
-            max-height: 75vh;  /* Reduced to account for header space */
-            width: calc(75vh * 7/15);  /* Adjusted to maintain ratio */
+            width: 96vw;  /* Use most of the viewport width */
+            height: calc(96vw * 10/5);  /* Changed to 10:5 ratio */
+            max-height: 90vh;  /* Increased to accommodate more rows */
             background: linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
             border: 4px solid #ffd700;
             box-shadow: 0 0 15px #ffd700, inset 0 0 50px rgba(0,0,0,0.5);
             border-radius: 15px;
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            grid-template-rows: repeat(15, 1fr);
-            gap: 1px;
-            padding: 1px;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(10, 1fr);  /* Changed to 10 rows */
+            gap: 3px;
+            padding: 3px;
             margin: 0;
+        }
+
+        /* If height would exceed max-height, recalculate width to maintain ratio */
+        @media (min-aspect-ratio: 5/10) {
+            #game-board {
+                width: calc(90vh * 5/10);
+                height: 90vh;
+            }
         }
 
         .card-cell {
@@ -191,23 +198,23 @@
             background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
             color: black;
             font-weight: bold;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 3px rgba(255,255,255,0.9);
+            border-radius: 15px;
+            border: 3px solid #ddd;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.9);
             font-family: Arial, sans-serif;
-            padding: 2px;
+            padding: 3px;
             text-align: center;
         }
 
         .card .number {
-            font-size: min(3.5vh, 20px);
+            font-size: min(7vw, 36px);  /* Slightly reduced for more rows */
             line-height: 1;
             font-weight: bold;
             display: block;
         }
 
         .card .suit {
-            font-size: min(3vh, 18px);
+            font-size: min(6vw, 32px);  /* Slightly reduced for more rows */
             line-height: 1;
             display: block;
             margin-top: -2px;
@@ -475,8 +482,25 @@
         /* Media query for mobile devices */
         @media screen and (max-width: 480px) {
             #game-board {
-                max-height: 70vh;  /* Even more reduced for mobile */
-                width: calc(70vh * 7/15);
+                width: 98vw;
+                height: calc(98vw * 10/5);
+                max-height: 90vh;
+            }
+
+            .card .number {
+                font-size: min(8vw, 28px);
+            }
+
+            .card .suit {
+                font-size: min(7vw, 24px);
+            }
+        }
+
+        /* For very tall screens, ensure the board doesn't get too tall */
+        @media (min-height: 1000px) {
+            #game-board {
+                max-height: 900px;  /* Increased for more rows */
+                width: calc(900px * 5/10);
             }
         }
     </style>
