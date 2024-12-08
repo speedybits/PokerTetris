@@ -204,7 +204,7 @@ class Game {
         nextCardElement.innerHTML = '';
         const cardDiv = document.createElement('div');
         cardDiv.className = `card ${this.nextCard.isRed() ? 'red' : ''}`;
-        cardDiv.textContent = this.nextCard.toString();
+        cardDiv.innerHTML = this.nextCard.toString();
         nextCardElement.appendChild(cardDiv);
 
         if (!this.board.isValidPosition(this.currentX, this.currentY)) {
@@ -297,53 +297,9 @@ class Game {
             notification.className = 'poker-notification';
             if (handResults.length === 1) {
                 notification.textContent = `${handResults[0].message}`;
-                
-                // Calculate position based on matched cards
-                const positions = handResults[0].positions;
-                const isVertical = positions[0].x === positions[1].x;
-                const gameBoard = document.getElementById('game-board');
-                const boardRect = gameBoard.getBoundingClientRect();
-                
-                // Calculate average position of matched cards
-                const avgX = positions.reduce((sum, pos) => sum + pos.x, 0) / positions.length;
-                const avgY = positions.reduce((sum, pos) => sum + pos.y, 0) / positions.length;
-                
-                // Convert grid position to pixels
-                const cellWidth = boardRect.width / this.board.width;
-                const cellHeight = boardRect.height / this.board.height;
-                const pixelX = boardRect.left + (avgX * cellWidth);
-                const pixelY = boardRect.top + (avgY * cellHeight);
-                
-                // Position notification based on match orientation
-                if (isVertical) {
-                    // For vertical matches, place notification to the right
-                    notification.style.left = `${pixelX + cellWidth * 1.5}px`;
-                    notification.style.top = `${pixelY}px`;
-                } else {
-                    // For horizontal matches, place notification above
-                    notification.style.left = `${pixelX}px`;
-                    notification.style.top = `${pixelY - cellHeight * 1.5}px`;
-                }
-                
-                // Ensure notification stays within viewport
-                setTimeout(() => {
-                    const notifRect = notification.getBoundingClientRect();
-                    if (notifRect.right > window.innerWidth) {
-                        notification.style.left = `${pixelX - notifRect.width - cellWidth * 0.5}px`;
-                    }
-                    if (notifRect.top < 0) {
-                        notification.style.top = `${pixelY + cellHeight * 1.5}px`;
-                    }
-                }, 0);
             } else {
                 notification.textContent = `Multiple hands: ${totalScore} points!`;
-                // For multiple hands, center in the game board
-                const gameBoard = document.getElementById('game-board');
-                const boardRect = gameBoard.getBoundingClientRect();
-                notification.style.left = `${boardRect.left + boardRect.width / 2 - 100}px`;
-                notification.style.top = `${boardRect.top + boardRect.height / 2}px`;
             }
-            
             document.body.appendChild(notification);
             console.log('Added notification:', notification.textContent);
 

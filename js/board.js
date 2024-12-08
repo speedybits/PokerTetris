@@ -34,7 +34,7 @@ class Board {
                     const cell = cells[y * this.width + x];
                     const cardDiv = document.createElement('div');
                     cardDiv.className = `card ${displayGrid[y][x].isRed() ? 'red' : ''}`;
-                    cardDiv.textContent = displayGrid[y][x].toString();
+                    cardDiv.innerHTML = displayGrid[y][x].toString();
                     cell.appendChild(cardDiv);
                 }
             }

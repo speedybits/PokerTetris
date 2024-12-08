@@ -19,7 +19,7 @@ class Card {
         };
         
         const displayValue = valueMap[this.value] || this.value;
-        return `${displayValue}${suitMap[this.suit]}`;
+        return `<span class="number">${displayValue}</span><span class="suit">${suitMap[this.suit]}</span>`;
     }
 
     isRed() {

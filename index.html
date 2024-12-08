@@ -140,19 +140,16 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             align-items: center;
             position: relative;
+            padding-top: calc(8vh + 20px);  /* Height of info panels plus spacing */
         }
 
         #game-board {
             width: 100vw;
             height: calc(100vw * 15/7);
-            max-height: 82vh;
-            width: calc(82vh * 7/15);
-            background: #1e1e3f;  /* Solid fallback */
-            background: -webkit-linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
-            background: -moz-linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
+            max-height: 75vh;  /* Reduced to account for header space */
+            width: calc(75vh * 7/15);  /* Adjusted to maintain ratio */
             background: linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
             border: 4px solid #ffd700;
             box-shadow: 0 0 15px #ffd700, inset 0 0 50px rgba(0,0,0,0.5);
@@ -162,7 +159,7 @@
             grid-template-rows: repeat(15, 1fr);
             gap: 1px;
             padding: 1px;
-            margin: 5px 0;
+            margin: 0;
         }
 
         .card-cell {
@@ -188,38 +185,40 @@
             width: 96%;
             height: 96%;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
             color: black;
             font-weight: bold;
-            border-radius: 10px;
-            border: 2px solid #ffd700;
-            box-shadow: 0 0 10px rgba(255,215,0,0.3);
-            font-size: min(5vh, 32px);
-            line-height: 1;
-            transition: all 0.3s ease-out;
-            transform-style: preserve-3d;
-            backface-visibility: hidden;
-            font-family: 'Arial Black', sans-serif;
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 3px rgba(255,255,255,0.9);
+            font-family: Arial, sans-serif;
+            padding: 2px;
+            text-align: center;
         }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 5%;
-            left: 5%;
-            right: 5%;
-            bottom: 5%;
-            border-radius: 8px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
-            pointer-events: none;
+        .card .number {
+            font-size: min(3.5vh, 20px);
+            line-height: 1;
+            font-weight: bold;
+            display: block;
+        }
+
+        .card .suit {
+            font-size: min(3vh, 18px);
+            line-height: 1;
+            display: block;
+            margin-top: -2px;
         }
 
         .card.red {
-            color: #ff0000;
-            text-shadow: 0 0 5px rgba(255,0,0,0.3);
+            color: #e74c3c;
+        }
+
+        .card.red .suit {
+            color: #e74c3c;
         }
 
         /* Card hover effect */
@@ -270,17 +269,15 @@
             animation: cardExplode 1s ease-out forwards;
         }
 
-        /* Game info overlay */
+        /* Game info panel - Next Card */
         #game-info {
-            width: auto;
+            position: fixed;
+            top: 10px;
+            left: 10px;
             display: flex;
             flex-direction: row;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            gap: 15px;
-            background: #1e1e3f;  /* Solid fallback */
-            background: -webkit-linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
-            background: -moz-linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
             background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
             padding: 5px 15px;
             border-radius: 12px;
@@ -289,7 +286,7 @@
             -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 0 10px #ffd700, 0 0 20px rgba(255,215,0,0.3);
             height: 8vh;
-            margin-bottom: 5px;
+            z-index: 100;
         }
 
         #next-card {
@@ -304,21 +301,34 @@
             box-shadow: 0 0 15px rgba(255,215,0,0.2);
         }
 
+        /* Score display - upper right */
         #score-display {
-            font-size: 2.5vh;
-            text-align: center;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
+            padding: 5px 15px;
+            border-radius: 12px;
+            border: 2px solid #ffd700;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 0 10px #ffd700, 0 0 20px rgba(255,215,0,0.3);
+            font-size: 24px;
             font-weight: bold;
             color: #ffd700;
             text-shadow: 0 0 10px rgba(255,215,0,0.5);
-            margin: 0;
+            z-index: 100;
             white-space: nowrap;
+            height: 8vh;
+            display: flex;
+            align-items: center;
         }
 
-        /* Touch areas */
+        /* Touch areas adjusted to match new board position */
         .touch-area {
             position: absolute;
-            top: 8vh;  /* Start after the game info */
-            bottom: 5vh;  /* Leave space for Quick Drop button */
+            top: calc(8vh + 20px);  /* Match game container padding */
+            bottom: 5vh;
             width: 50%;
             opacity: 0;
         }
@@ -380,28 +390,31 @@
             display: none;
         }
 
-        /* Poker hand notification */
+        /* Poker notification - below score display */
         .poker-notification {
-            position: absolute;
+            position: fixed;
+            top: 60px;  /* Positioned below score display */
+            right: 10px;
             background: linear-gradient(135deg, #ffd700 0%, #ff9900 100%);
             color: #1a0f2e;
-            padding: 20px 30px;
-            border-radius: 30px;
-            font-size: 28px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 24px;
             font-weight: bold;
             box-shadow: 
                 0 0 10px #ffd700,
                 0 0 20px #ffd700,
                 0 0 30px #ffd700;
             text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
-            animation: notificationPop 0.5s ease-out forwards;
             border: 2px solid #fff;
             z-index: 1000;
+            animation: notificationPop 0.5s ease-out forwards;
+            white-space: nowrap;
         }
 
         @keyframes notificationPop {
             0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); }
+            50% { transform: scale(1.1); }
             100% { transform: scale(1); opacity: 1; }
         }
 
@@ -462,8 +475,8 @@
         /* Media query for mobile devices */
         @media screen and (max-width: 480px) {
             #game-board {
-                max-height: 75vh;  /* Slightly smaller on mobile */
-                width: calc(75vh * 7/15);  /* Maintain ratio */
+                max-height: 70vh;  /* Even more reduced for mobile */
+                width: calc(70vh * 7/15);
             }
         }
     </style>
@@ -485,8 +498,8 @@
         <div id="game-container">
             <div id="game-info">
                 <div id="next-card"></div>
-                <div id="score-display">Score: <span id="score">0</span></div>
             </div>
+            <div id="score-display">Score: <span id="score">0</span></div>
             <div id="game-board"></div>
             <div id="touch-left" class="touch-area"></div>
             <div id="touch-right" class="touch-area"></div>
