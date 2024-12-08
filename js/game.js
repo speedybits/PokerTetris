@@ -227,10 +227,8 @@ class Game {
 
     submitScore(initials) {
         highScores.addScore(initials, this.score);
-        setTimeout(() => {
-            this.showScreen('start-screen');
-            highScores.displayScores();
-        }, 3000);
+        this.showScreen('start-screen');
+        highScores.displayScores();
     }
 
     lockCard() {
