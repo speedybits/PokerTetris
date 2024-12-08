@@ -5,25 +5,56 @@ Feature: Cardtris Game
 
   Background:
     Given the game is loaded on a mobile device in portrait mode
-    And the game board is 7 cards wide and 15 cards tall
+    And the game board is 5 cards wide and 10 cards tall
     And I have a standard 52-card deck shuffled
+    And each cell has a 1:2 aspect ratio
+    And there is a 1px gap between cells
 
   Scenario: Start Screen Display
     Given I am on the start screen
     Then I should see the top 5 high scores at the top
     And each high score should show initials, score, and date
-    And I should see a "Start Game" button at the bottom
+    And I should see a "Start Game" button with gradient effect
+    And the high scores should have a translucent background with golden border
     When I tap the "Start Game" button
     Then the game should begin
 
   Scenario: Game Display Layout
     Given I am playing the game
-    Then the game board should fill the majority of the screen height
+    Then the game board should be maximum 75vh in height
+    And the board width should be half its height
+    And the board should have a 3px solid golden border with inner shadow
     And the next card preview should be visible in the top-right corner
-    And the current score should be visible in the top-right corner
-    And the game board should not exceed 500px in width
-    And the layout should work in portrait orientation only
+    And the current score should be visible in the top-left corner
+    And the Quick Drop button should be visible below the board
+    And the background should have a gradient from #1a0f2e to #2c1654
+    And I should see touch areas on the left and right sides
     And I should see a landscape orientation warning if device is rotated
+
+  Scenario: Card Display
+    Given a card is on the board
+    Then the card should fit inside its cell
+    And the card should have a 1:2 aspect ratio
+    And the card width should be 96% of the cell width
+    And the card should be centered in the cell
+    And the card should have 8% vertical padding and 4% horizontal padding
+    And hearts and diamonds should be displayed in red
+    And clubs and spades should be displayed in black
+    And the card value should be displayed at the top half
+    And the suit symbol should be displayed at the bottom half
+    When the card is part of a match
+    Then it should show a golden pulse effect
+
+  Scenario: Game Speed
+    Given I am playing the game
+    Then cards should initially fall every 500ms
+    And the minimum fall interval should be 200ms
+
+  Scenario: Deck Management
+    Given I am playing the game
+    When all cards from the deck have been used
+    Then the deck should be automatically reshuffled
+    And matched cards should be returned to the deck for reuse
 
   Scenario: Card Movement
     Given a card is falling
@@ -59,20 +90,17 @@ Feature: Cardtris Game
     Then they should lock in their new positions
     And any new poker hands formed should be evaluated
 
+  Scenario: Match Animations
+    Given a poker hand is formed
+    Then the matching cards should pulse with a golden glow for 4 seconds total
+    And the cards should show a scale and color change
+    And finally show an explosion animation before removal
+    And score notifications should pop in with animation
+    And score notifications should auto-remove after matches
+
   Scenario: Forming Poker Hands
     Given there are cards placed on the board
-    When 5 cards form a valid poker hand horizontally
-    Then the game should pause for 3 seconds
-    And the matching cards should pulse with a golden glow
-    And I should see a notification showing the hand type and points earned
-    And after 3 seconds the cards should explode with animation
-    And those cards should be removed
-    And any cards above the removed cards should fall down
-    And the cards should be returned to the deck
-    And I should receive points based on the poker hand value
-    
-    Given there are cards placed on the board
-    When 5 cards form a valid poker hand vertically
+    When 5 cards form a valid poker hand horizontally or vertically
     Then the game should pause for 3 seconds
     And the matching cards should pulse with a golden glow
     And I should see a notification showing the hand type and points earned
@@ -111,15 +139,24 @@ Feature: Cardtris Game
     Given cards are stacked on the board
     When the stack reaches the top of the board
     Then the game should end
+    And I should see a translucent dark overlay
+    And I should see my final score with large display
     And I should be prompted to enter my initials
     When I enter my initials
     Then my score should be saved if it's in the top 5
     And I should return to the start screen
 
+  Scenario: Alternative Game Over
+    Given I am playing the game
+    When no more valid moves are possible
+    Then the game should end
+    And the game over sequence should begin
+
   Scenario: New High Score
     Given I have achieved a top 5 score
     When I enter my initials
-    Then my score should appear in the high scores list
+    Then I should see a "New High Score" message in golden text
+    And my score should appear in the high scores list
     And I should return to the start screen
 
   Scenario: Multiple Hand Evaluation
@@ -132,3 +169,9 @@ Feature: Cardtris Game
     And all matched cards should be removed
     And points should be awarded for each hand
     And all matched cards should return to the deck
+
+  Scenario: Performance Optimization
+    Given I am playing the game
+    Then touch events should use passive event listeners where possible
+    And default touch behaviors should be prevented
+    And touch-action should be set to none for smoother play
