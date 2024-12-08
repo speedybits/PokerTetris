@@ -143,6 +143,7 @@
             align-items: center;
             position: relative;
             padding-top: calc(8vh + 20px);
+            padding-bottom: 20px;
         }
 
         #game-board {
@@ -432,10 +433,7 @@
 
         /* Add Quick Drop button styles */
         #quick-drop {
-            width: auto;
-            background: #ff00de;  /* Solid fallback */
-            background: -webkit-linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
-            background: -moz-linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
+            position: relative;
             background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
             color: white;
             border: 2px solid #fff;
@@ -443,15 +441,16 @@
             font-size: 2vh;
             border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 0 10px #ff00de, 0 0 20px #ff00de;
+            box-shadow: 
+                0 0 10px #ff00de,
+                0 0 20px #ff00de;
             transition: all 0.3s ease;
             text-transform: uppercase;
             font-weight: bold;
             letter-spacing: 1px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-top: 5px;
-            height: 5vh;
-            z-index: 100;
+            margin-top: 10px;
+            margin-bottom: 20px;
         }
 
         #quick-drop:hover {
