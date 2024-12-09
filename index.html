@@ -148,8 +148,8 @@
 
         #game-board {
             width: 90vw;
-            height: calc(90vw * 10/5);
-            max-height: 65vh;
+            height: calc(90vw * 2);  /* Maintain 1:2 ratio */
+            max-height: 80vh;  /* Match markdown spec */
             background: linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
             border: 3px solid #ffd700;
             box-shadow: 0 0 10px #ffd700, inset 0 0 30px rgba(0,0,0,0.5);
@@ -157,7 +157,7 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(10, 1fr);
-            gap: 2px;
+            gap: 1px;
             padding: 2px;
             margin: 0;
         }
@@ -165,8 +165,8 @@
         /* If height would exceed max-height, recalculate width to maintain ratio */
         @media (min-aspect-ratio: 5/10) {
             #game-board {
-                width: calc(65vh * 5/10);
-                height: 65vh;
+                width: calc(80vh * 0.5);  /* Half of max-height to maintain ratio */
+                height: 80vh;
             }
         }
 
@@ -191,7 +191,7 @@
             top: 2%;
             left: 50%;
             transform: translateX(-50%);
-            width: 71.4%;  /* This will give us a 1:1.4 ratio with the height */
+            width: 50%;  /* Maintain 1:2 ratio */
             height: 96%;
             display: flex;
             flex-direction: column;
@@ -485,33 +485,17 @@
         /* Media query for mobile devices */
         @media screen and (max-width: 480px) {
             #game-board {
-                width: 98vw;
-                height: calc(98vw * 10/5);
-                max-height: 90vh;
+                width: 92vw;
+                height: calc(92vw * 2);
+                max-height: 80vh;
             }
 
             .card .number {
-                font-size: min(8vw, 28px);
+                font-size: min(5vw, 24px);
             }
 
             .card .suit {
-                font-size: min(7vw, 24px);
-            }
-        }
-
-        /* For very tall screens, ensure the board doesn't get too tall */
-        @media (min-height: 1000px) {
-            #game-board {
-                max-height: 900px;  /* Increased for more rows */
-                width: calc(900px * 5/10);
-            }
-        }
-
-        /* Media query specifically for iPhone 11 and similar devices */
-        @media screen and (max-width: 480px) and (min-height: 800px) {
-            #game-board {
-                max-height: 75vh;
-                width: calc(75vh * 5/10);
+                font-size: min(4.5vw, 20px);
             }
 
             #game-container {
@@ -520,46 +504,16 @@
 
             #quick-drop {
                 margin-top: 8px;
-                margin-bottom: 15px;
-                padding: 8px 12px;
+                margin-bottom: 12px;
+                padding: 6px 12px;
             }
         }
 
-        /* Media query for iPhone SE and similar small devices */
-        @media screen and (max-width: 380px) and (max-height: 670px) {
+        /* For very tall screens, ensure the board doesn't get too tall */
+        @media (min-height: 1000px) {
             #game-board {
-                width: 92vw;
-                height: calc(92vw * 10/5);
-                max-height: 60vh;  /* Even smaller for very small screens */
-            }
-
-            #game-container {
-                padding-top: calc(6vh + 2px);
-            }
-
-            .card .number {
-                font-size: min(4.5vw, 24px);
-            }
-
-            .card .suit {
-                font-size: min(4vw, 20px);
-            }
-
-            #quick-drop {
-                margin-top: 6px;
-                margin-bottom: 8px;
-                padding: 4px 10px;
-                min-height: 28px;
-                font-size: 1.6vh;
-            }
-
-            #game-info, #score-display {
-                height: 5vh;
-            }
-
-            #next-card {
-                width: calc(5vh * 2.5/3.5);
-                height: calc(5vh - 6px);
+                max-height: 900px;
+                width: calc(900px * 0.5);  /* Maintain ratio */
             }
         }
     </style>
