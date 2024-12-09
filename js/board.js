@@ -78,11 +78,12 @@ class Board {
     applyGravity() {
         let cardsMoved = false;
         let animationsInProgress = 0;
+        let allMoves = []; // Store all moves across all columns
         
         // Process each column independently
         for (let x = 0; x < this.width; x++) {
             let writePos = this.height - 1; // Start from bottom
-            let moves = []; // Store moves to make after animation
+            let columnMoves = []; // Store moves for this column
             
             // Read from bottom to top
             for (let y = this.height - 1; y >= 0; y--) {
@@ -97,10 +98,11 @@ class Board {
                             animationsInProgress++;
                             
                             // Store the move to make
-                            moves.push({
+                            columnMoves.push({
                                 fromY: y,
                                 toY: writePos,
-                                card: this.grid[y][x]
+                                card: this.grid[y][x],
+                                element: cardElement
                             });
                             
                             // Add falling animation class
@@ -114,29 +116,40 @@ class Board {
                             
                             // Apply transform for smooth vertical-only animation
                             cardElement.style.transform = `translateY(${yDiff}px)`;
-                            
-                            // After animation completes, move to new position and clean up
-                            setTimeout(() => {
-                                cardElement.style.transform = '';
-                                cardElement.classList.remove('falling');
-                                targetCell.appendChild(cardElement);
-                                animationsInProgress--;
-                                
-                                // If this was the last animation, update the grid
-                                if (animationsInProgress === 0) {
-                                    // Apply all moves to the grid
-                                    moves.forEach(move => {
-                                        this.grid[move.toY][x] = move.card;
-                                        this.grid[move.fromY][x] = null;
-                                    });
-                                }
-                            }, 1000);
                         }
                     }
                     writePos--;
                 }
             }
+            
+            // Add this column's moves to the overall moves
+            if (columnMoves.length > 0) {
+                allMoves.push({ x, moves: columnMoves });
+            }
         }
+        
+        // If we have moves to make, set up a single timeout for all animations
+        if (allMoves.length > 0) {
+            setTimeout(() => {
+                // Process all moves after animations complete
+                allMoves.forEach(({ x, moves }) => {
+                    moves.forEach(move => {
+                        // Reset animation styles
+                        move.element.style.transform = '';
+                        move.element.classList.remove('falling');
+                        
+                        // Move card to new position
+                        const targetCell = this.element.children[move.toY * this.width + x];
+                        targetCell.appendChild(move.element);
+                        
+                        // Update grid state
+                        this.grid[move.toY][x] = move.card;
+                        this.grid[move.fromY][x] = null;
+                    });
+                });
+            }, 1000);
+        }
+        
         return cardsMoved;
     }
 
