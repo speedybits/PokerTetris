@@ -175,3 +175,17 @@ Feature: Cardtris Game
     Then touch events should use passive event listeners where possible
     And default touch behaviors should be prevented
     And touch-action should be set to none for smoother play
+
+  Scenario: Responsive Layout
+    Given I am playing the game
+    When the viewport height is 800 pixels
+    Then the game board height should be 600 pixels
+    And the board width should be 300 pixels
+    
+    When the viewport height changes to 1000 pixels
+    Then the game board height should automatically adjust to 750 pixels
+    And the board width should automatically adjust to 375 pixels
+    
+    When the viewport height changes to 600 pixels
+    Then the game board height should automatically adjust to 450 pixels
+    And the board width should automatically adjust to 225 pixels

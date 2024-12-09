@@ -5,10 +5,17 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 
 ## Core Display Specifications
 
+### Screen Elements
+- Score display: top-left corner (10% of viewport height)
+- Next card preview: top-right corner (10% of viewport height... 1:2 aspect ratio)
+- Board: centered on screen below Next card preview and Score display
+- Quick Drop button: below board (10% of viewport height)
+- Touch areas: left/right sides of screen
+
 ### Board Layout
 - Dimensions: 5 columns × 10 rows of cells (5:10 ratio)
 - Each cell must have 1:2 aspect ratio (width:height)
-- Maximum board height: 75vh (75% of viewport height)
+- Maximum board height: 80vh (80% of viewport height)
 - Board width: board height / 2
 - Grid styling:
   - Gap between cells: 1px
@@ -30,12 +37,6 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
   - Colors: red for hearts/diamonds, black for clubs/spades
   - Values displayed as: A (1), 2-10, J (11), Q (12), K (13)
   - Suits displayed as: ♥ ♦ ♣ ♠
-
-### Screen Elements
-- Score display: top-left corner
-- Next card preview: top-right corner
-- Quick Drop button: below board
-- Touch areas: left/right sides of screen
 
 ## Visual Design
 - Dark theme with gradient background (#1a0f2e to #2c1654)
