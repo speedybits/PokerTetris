@@ -77,9 +77,12 @@ class Board {
 
     applyGravity() {
         let cardsMoved = false;
+        let animationsInProgress = 0;
+        
         // Process each column independently
         for (let x = 0; x < this.width; x++) {
             let writePos = this.height - 1; // Start from bottom
+            let moves = []; // Store moves to make after animation
             
             // Read from bottom to top
             for (let y = this.height - 1; y >= 0; y--) {
@@ -91,14 +94,43 @@ class Board {
                         const cell = this.element.children[y * this.width + x];
                         const cardElement = cell.firstChild;
                         if (cardElement) {
-                            // Calculate the distance to move
-                            const distance = writePos - y;
-                            // Move the card to the new cell
+                            animationsInProgress++;
+                            
+                            // Store the move to make
+                            moves.push({
+                                fromY: y,
+                                toY: writePos,
+                                card: this.grid[y][x]
+                            });
+                            
+                            // Add falling animation class
+                            cardElement.classList.add('falling');
+                            
+                            // Calculate the vertical distance to move
+                            const initialRect = cardElement.getBoundingClientRect();
                             const targetCell = this.element.children[writePos * this.width + x];
-                            targetCell.appendChild(cardElement);
-                            // Update the grid
-                            this.grid[writePos][x] = this.grid[y][x];
-                            this.grid[y][x] = null;
+                            const targetRect = targetCell.getBoundingClientRect();
+                            const yDiff = targetRect.top - initialRect.top;
+                            
+                            // Apply transform for smooth vertical-only animation
+                            cardElement.style.transform = `translateY(${yDiff}px)`;
+                            
+                            // After animation completes, move to new position and clean up
+                            setTimeout(() => {
+                                cardElement.style.transform = '';
+                                cardElement.classList.remove('falling');
+                                targetCell.appendChild(cardElement);
+                                animationsInProgress--;
+                                
+                                // If this was the last animation, update the grid
+                                if (animationsInProgress === 0) {
+                                    // Apply all moves to the grid
+                                    moves.forEach(move => {
+                                        this.grid[move.toY][x] = move.card;
+                                        this.grid[move.fromY][x] = null;
+                                    });
+                                }
+                            }, 1000);
                         }
                     }
                     writePos--;

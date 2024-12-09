@@ -206,6 +206,7 @@
             font-family: Arial, sans-serif;
             padding: 8% 4%;
             text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .card .number {
@@ -515,6 +516,14 @@
                 max-height: 900px;
                 width: calc(900px * 0.5);  /* Maintain ratio */
             }
+        }
+
+        /* Card gravity animation */
+        .card.falling {
+            transition: transform 1s ease-in-out;
+            box-shadow: 0 0 15px #ffd700;
+            border: 2px solid #ffd700;
+            z-index: 500;  /* Above normal cards but below matching cards */
         }
     </style>
 </head>

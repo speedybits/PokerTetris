@@ -301,7 +301,7 @@ class Game {
             document.body.appendChild(notification);
             console.log('Added notification:', notification.textContent);
 
-            // Highlight matching cards
+            // Highlight matching cards and start animations
             handResults.forEach(result => {
                 result.positions.forEach(pos => {
                     const cell = this.board.element.children[pos.y * this.board.width + pos.x];
@@ -326,21 +326,7 @@ class Game {
                 });
             });
 
-            // Add pulse animation if it doesn't exist
-            if (!document.querySelector('#pulse-animation')) {
-                const style = document.createElement('style');
-                style.id = 'pulse-animation';
-                style.textContent = `
-                    @keyframes pulse {
-                        0% { transform: scale(1.5); }
-                        50% { transform: scale(1.8); }
-                        100% { transform: scale(1.5); }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-
-            // After animation, remove cards (doubled duration)
+            // After match animation completes (4 seconds)
             setTimeout(() => {
                 console.log('Starting card removal sequence');
                 handResults.forEach(result => {
@@ -364,7 +350,7 @@ class Game {
                 notification.remove();
                 console.log('Notification removed');
 
-                // Quick check for new matches after gravity
+                // Wait for gravity animations to complete (1 second)
                 setTimeout(() => {
                     console.log('Cards have settled, checking for new hands');
                     const newHands = this.board.checkForPokerHands();
@@ -372,10 +358,14 @@ class Game {
                     if (newHands.length === 0) {
                         this.isPaused = false;
                         console.log('Game unpaused');
+                    } else {
+                        // If new hands are found, check them after a brief delay
+                        setTimeout(() => {
+                            this.checkForMatches();
+                        }, 100);
                     }
-                    this.checkForMatches();
-                }, 500); // Keep quick gravity settling time
-            }, 4000); // Doubled from 1000ms to 2000ms for longer animation
+                }, 1000); // Wait for gravity animation to complete
+            }, 4000); // Match animation duration
         }
     }
 

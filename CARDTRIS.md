@@ -15,8 +15,10 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 ### Board Layout
 - Dimensions: 5 columns × 10 rows of cells (5:10 ratio)
 - Each cell must have 1:2 aspect ratio (width:height)
-- Maximum board height: 80vh (80% of viewport height)
-- Board width: board height / 2
+- Initial board width: 90vw
+- Initial board height: 180vw (90vw * 2)
+- Maximum board height: 80vh
+- Board width adjusts to maintain ratio when max-height is reached
 - Grid styling:
   - Gap between cells: 1px
   - Border: 3px solid #ffd700 with inner shadow
@@ -134,7 +136,7 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
   - 5 cards in a horizontal row
   - 5 cards in a vertical column
 - When a poker hand is formed:
-  - Game pauses for 3 seconds
+  - Game pauses until the animation finishes and the remaining cards have settled
   - Matching cards pulse with a golden glow
   - Notification appears showing hand type and points earned
   - Multiple hands show total points earned
@@ -144,7 +146,7 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Cards not part of a winning hand remain on the board
 - Matched cards are removed and returned to the deck
 - Gravity affects remaining cards:
-  - Cards above removed matches fall down
+  - Cards above removed matches fall down slow enough for the player to see
   - Cards continue falling until they hit another card or the bottom
   - Multiple cards can fall simultaneously
   - New matches can form after cards fall
