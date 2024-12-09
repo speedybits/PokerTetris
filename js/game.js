@@ -378,14 +378,34 @@ class Game {
         
         // Check for straight (consecutive values)
         let isStraight = true;
+        // First check normal straight
         for (let i = 1; i < sortedCards.length; i++) {
             if (sortedCards[i].value !== sortedCards[i-1].value + 1) {
-                // Special case for Ace-high straight
-                if (i === sortedCards.length - 1 && sortedCards[0].value === 1 && sortedCards[1].value === 10) {
-                    continue;
-                }
                 isStraight = false;
                 break;
+            }
+        }
+        
+        // If not a normal straight, check for Ace-high straight (10-J-Q-K-A)
+        if (!isStraight && sortedCards[0].value === 1) {
+            isStraight = true;
+            const expectedValues = [1, 10, 11, 12, 13];
+            for (let i = 0; i < sortedCards.length; i++) {
+                if (sortedCards[i].value !== expectedValues[i]) {
+                    isStraight = false;
+                    break;
+                }
+            }
+        }
+        
+        // If still not a straight, check for Ace-low straight (A-2-3-4-5)
+        if (!isStraight && sortedCards[0].value === 1) {
+            isStraight = true;
+            for (let i = 1; i < sortedCards.length; i++) {
+                if (sortedCards[i].value !== i + 1) {
+                    isStraight = false;
+                    break;
+                }
             }
         }
 
