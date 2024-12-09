@@ -144,12 +144,13 @@
             position: relative;
             padding-top: calc(6vh + 5px);
             padding-bottom: 10px;
+            gap: 10px;
         }
 
         #game-board {
             width: 90vw;
             height: calc(90vw * 2);  /* Maintain 1:2 ratio */
-            max-height: 80vh;  /* Match markdown spec */
+            max-height: 75vh;  /* Reduced to make room for quick drop button */
             background: linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
             border: 3px solid #ffd700;
             box-shadow: 0 0 10px #ffd700, inset 0 0 30px rgba(0,0,0,0.5);
@@ -440,8 +441,8 @@
             background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
             color: white;
             border: 2px solid #fff;
-            padding: 6px 12px;
-            font-size: 1.8vh;
+            padding: 8px 16px;
+            font-size: 2.5vh;
             border-radius: 15px;
             cursor: pointer;
             box-shadow: 
@@ -452,10 +453,11 @@
             font-weight: bold;
             letter-spacing: 1px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-top: 8px;
-            margin-bottom: 12px;
-            height: auto;
-            min-height: 32px;
+            margin-top: 10px;
+            z-index: 100;
+            min-height: 40px;
+            width: auto;
+            min-width: 120px;
         }
 
         #quick-drop:hover {
@@ -488,7 +490,7 @@
             #game-board {
                 width: 92vw;
                 height: calc(92vw * 2);
-                max-height: 80vh;
+                max-height: 70vh; /* Even smaller to ensure button visibility */
             }
 
             .card .number {
@@ -501,20 +503,22 @@
 
             #game-container {
                 padding-top: calc(8vh + 5px);
+                gap: 15px; /* Larger gap for mobile */
             }
 
             #quick-drop {
-                margin-top: 8px;
-                margin-bottom: 12px;
-                padding: 6px 12px;
+                font-size: 16px;
+                padding: 10px 20px;
+                margin-top: 15px;
+                min-height: 44px; /* Larger touch target for mobile */
             }
         }
 
         /* For very tall screens, ensure the board doesn't get too tall */
         @media (min-height: 1000px) {
             #game-board {
-                max-height: 900px;
-                width: calc(900px * 0.5);  /* Maintain ratio */
+                max-height: 800px; /* Reduced from 900px to ensure button visibility */
+                width: calc(800px * 0.5);  /* Maintain ratio */
             }
         }
 
