@@ -324,3 +324,80 @@ Feature: Cardtris Game
       | 7     | Full House        |
       | 8     | Four of a Kind    |
       | 9+    | All except Royal/Straight Flush |
+
+  Scenario: Detailed Display Specifications
+    Given I am playing the game
+    Then the score display should be 10% of viewport height
+    And the next card preview should be 10% of viewport height
+    And the Quick Drop button should be 10% of viewport height
+    And the game board should have 4px padding inside its border
+    And each cell should show a subtle golden glow on hover
+
+  Scenario: Detailed Card Layout
+    Given a card is on the board
+    Then it should be positioned using transform: translate(-50%, -50%)
+    And card values should be displayed as:
+      | Value | Display |
+      | 1     | A       |
+      | 2-10  | As is   |
+      | 11    | J       |
+      | 12    | Q       |
+      | 13    | K       |
+    And suit symbols should be displayed as:
+      | Suit    | Symbol |
+      | Hearts  | ♥      |
+      | Diamonds| ♦      |
+      | Clubs   | ♣      |
+      | Spades  | ♠      |
+
+  Scenario: Technical Game Engine Details
+    Given I am playing the game
+    Then the game should use RequestAnimationFrame for the game loop
+    And the game should have a collision detection system
+    And the game should simulate gravity for falling cards
+    And the game should pause for animations and matches
+
+  Scenario: Touch Event Optimization
+    Given I am playing the game
+    Then touch events should use passive event listeners
+    And default touch behaviors should be prevented
+    And touch-action should be set to none
+    And the game should use efficient grid-based rendering
+    And DOM updates should be minimized
+    And RequestAnimationFrame should be used for synchronization
+
+  Scenario: Strategy Elements
+    Given I am playing the game
+    Then I should be able to plan ahead for potential poker hands
+    And I should be able to track cards that have appeared
+    And I should be able to create opportunities for multiple hand combinations
+    And I should be able to manage board space efficiently
+    And I should be able to consider both horizontal and vertical hand possibilities
+
+  Scenario: High Scores Panel Styling
+    Given I am on the start screen
+    Then the high scores panel should have a translucent background
+    And it should have a golden border with shadow effects
+    And it should show the top 5 scores
+    And each score entry should show:
+      | Field    | Format                |
+      | Initials | 3 uppercase letters   |
+      | Score    | Numeric value         |
+      | Date     | Formatted date string |
+
+  Scenario: Game Panel Effects
+    Given I am playing the game
+    Then all game panels should have translucent backgrounds
+    And they should have blur effects using backdrop-filter
+    And they should have golden borders with shadow effects
+    And they should be positioned with proper z-indexing
+
+  Scenario: Detailed Animation Timing
+    Given a poker hand is formed
+    Then the match animation should last exactly 4 seconds
+    And the gravity animation should have a 500ms settling time
+    And multiple animations should be able to run simultaneously
+    And animations should be properly synchronized using RequestAnimationFrame
+    When multiple hands are matched
+    Then all animations should play without visual glitches
+    And the game should maintain proper timing for all effects
