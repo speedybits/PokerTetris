@@ -189,3 +189,138 @@ Feature: Cardtris Game
     When the viewport height changes to 600 pixels
     Then the game board height should automatically adjust to 450 pixels
     And the board width should automatically adjust to 225 pixels
+
+  Scenario: Level Display
+    Given I am playing the game
+    Then I should see the current level displayed in the top-center
+    And I should see the point multiplier for the current level
+    And the level display should have the same styling as other game elements
+
+  Scenario: Level Progression
+    Given I am at Level 1
+    When I use all 52 cards in the deck
+    Then my level should increase to 2
+    And I should see a level-up animation
+    And the point multiplier should increase to 1.2x
+
+  Scenario: Level-Based Hand Restrictions
+    Given I am at Level 1
+    Then all poker hands should be valid
+
+    Given I am at Level 2
+    When I form a pair
+    Then it should not be considered a valid hand
+    And the cards should still show the matching animation
+    And I should see a message "Level 2: Pairs Stay!" next to the matched cards
+    And the message should fade out after the animation completes
+    And the cards should remain on the board
+    
+    Given I am at Level 3
+    When I form a two pair
+    Then it should not be considered a valid hand
+    And the cards should still show the matching animation
+    And I should see a message "Level 3: Two Pairs Stay!" next to the matched cards
+    And the message should fade out after the animation completes
+    And the cards should remain on the board
+    But when I form a three of a kind
+    Then it should be considered a valid hand
+    And the cards should be removed after the animation
+
+  Scenario: Restricted Hand Animation
+    Given I am at a level where certain hands are restricted
+    When I form a restricted hand type
+    Then the cards should pulse with the golden glow animation
+    And the animation duration should match regular hand matches
+    And a message should appear next to the matched cards
+    And the message should use the same styling as other game notifications
+    And the message should show the current level and hand type
+    And the message should fade out after the animation completes
+    And the cards should remain on the board
+
+  Scenario Outline: Level-Based Scoring
+    Given I am at level <level>
+    When I form a <hand_type>
+    Then the base points <base_points> should be multiplied by <multiplier>
+    And the result should be rounded up to the nearest integer
+    And I should receive <final_points> points
+
+    Examples:
+      | level | hand_type     | base_points | multiplier | final_points |
+      | 1     | Royal Flush   | 2000        | 1.0        | 2000         |
+      | 2     | Straight Flush| 1000        | 1.2        | 1200         |
+      | 3     | Four of a Kind| 500         | 1.4        | 700          |
+      | 4     | Full House    | 300         | 1.6        | 480          |
+      | 5     | Flush         | 200         | 1.8        | 360          |
+      | 6     | Straight      | 150         | 2.0        | 300          |
+      | 7     | Three of a Kind| 100        | 2.2        | 220          |
+      | 8     | Two Pair      | 50          | 2.4        | 120          |
+      | 9     | One Pair      | 25          | 2.6        | 65           |
+
+  Scenario: Score Display Format
+    Given I am playing the game
+    Then I should see the score display in the top-right corner
+    And it should have two rows of text
+    And the first row should say "Score"
+    And the second row should show the score value
+
+  Scenario: Visual Design Elements
+    Given I am playing the game
+    Then I should see a dark theme with gradient background from #1a0f2e to #2c1654
+    And I should see neon-style effects with golden (#ffd700) and pink (#ff00de) accents
+    And I should see responsive text sizing using viewport units
+    And I should see smooth transitions and hover effects
+    And I should see blur effects on overlays
+
+  Scenario: Card Animations
+    Given a card is being matched
+    Then it should show a golden pulse effect
+    And it should show a scale transform
+    And it should show a gradient background shift
+    When the card is being removed
+    Then it should show a rotation and scale animation
+    And it should show an opacity fade
+    And it should show a color shift
+    And it should show multiple shadow layers
+
+  Scenario: Button Animations
+    Given I hover over a button
+    Then it should show a scale transform
+    And it should show an enhanced glow effect
+
+  Scenario: Score Notifications
+    Given I score points
+    Then I should see a notification with a pop-in scale effect
+    And the notification should have a slide transition
+
+  Scenario: High Score System Details
+    Given I have a high score
+    Then it should be persisted in local storage
+    And the score entry should be validated
+    And the scores should be automatically sorted
+    And the date should be tracked for each score
+    And the score updates should happen in real-time
+    And each score should show:
+      | Field    | Format          |
+      | Initials | 3 characters    |
+      | Score    | Numeric value   |
+      | Date     | Date achieved   |
+
+  Scenario: Special Case Hand Evaluation
+    Given I am evaluating poker hands
+    Then Ace-high straights should be recognized
+    And multiple simultaneous matches should be handled
+    And cascading matches after gravity should be evaluated
+
+  Scenario: Level Progression Complete
+    Given I am playing the game
+    Then each level should add 0.2x to the point multiplier
+    And the following hands should be restricted by level:
+      | Level | Restricted Hand    |
+      | 2     | Pairs             |
+      | 3     | Two Pairs         |
+      | 4     | Three of a Kind   |
+      | 5     | Straight          |
+      | 6     | Flush             |
+      | 7     | Full House        |
+      | 8     | Four of a Kind    |
+      | 9+    | All except Royal/Straight Flush |

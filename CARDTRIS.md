@@ -1,13 +1,14 @@
 # Cardtris - A Card-Based Tetris Variant
 
 ## Game Overview
-Cardtris combines the falling-block mechanics of Tetris with poker hand evaluation using a standard 52-card deck. Players must strategically place falling cards to create winning poker hands while managing the game board.
+Cardtris combines the falling-block mechanics of Tetris with poker hand evaluation using a standard 52-card deck. Players must strategically place falling cards to create winning poker hands while managing the game board. The game features a progressive level system where each complete cycle through the 52-card deck increases the level, adding both challenge and scoring opportunities.
 
 ## Core Display Specifications
 
 ### Screen Elements
-- Score display: top-left corner (10% of viewport height)
-- Next card preview: top-right corner (10% of viewport height... 1:2 aspect ratio)
+- Score display: top-right corner (10% of viewport height). Two rows of text, with the first row saying "Score" and the second row showing the score value.
+- Level display: top-center showing current level and point multiplier (10% of viewport height)
+- Next card preview: top-left corner (10% of viewport height... 1:2 aspect ratio)
 - Board: centered on screen below Next card preview and Score display
 - Quick Drop button: below board (10% of viewport height)
 - Touch areas: left/right sides of screen
@@ -151,8 +152,31 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
   - Multiple cards can fall simultaneously
   - New matches can form after cards fall
 
+### Level System
+- Players start at Level 1
+- Each time all 52 cards are used, the level increases by 1
+- Each level affects gameplay in two ways:
+  1. Point Multiplier:
+     - Level 1: 1.0x points
+     - Level 2: 1.2x points
+     - Level 3: 1.4x points
+     - Level 4: 1.6x points
+     - Level 5: 1.8x points
+     - And so on (adding 0.2x per level)
+     - All point calculations are rounded up to the nearest integer
+  2. Hand Restrictions:
+     - Level 1: All poker hands are valid (except high card)
+     - Level 2: Pairs no longer count as valid hands
+     - Level 3: Two Pairs also no longer count
+     - Level 4: Three of a Kind also no longer count
+     - Level 5: Straight also no longer counts
+     - Level 6: Flush also no longer counts
+     - Level 7: Full House also no longer counts
+     - Level 8: Four of a Kind also no longer counts
+     - Level 9+: Only Royal Flush and Straight Flush count
+
 ### Scoring System
-Poker hand rankings and their corresponding points:
+Base points for poker hands (before level multiplier):
 - Royal Flush: 2000 points
 - Straight Flush: 1000 points
 - Four of a Kind: 500 points
@@ -162,6 +186,8 @@ Poker hand rankings and their corresponding points:
 - Three of a Kind: 100 points
 - Two Pair: 50 points
 - One Pair: 25 points
+
+Final points are calculated by multiplying the base points by the level multiplier and rounding up to the nearest integer.
 
 ## Technical Implementation
 
