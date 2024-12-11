@@ -401,3 +401,61 @@ Feature: Cardtris Game
     When multiple hands are matched
     Then all animations should play without visual glitches
     And the game should maintain proper timing for all effects
+
+  Scenario: Joker Card Display
+    Given a Joker card is on the board
+    Then it should be displayed in purple color
+    And it should show the text "JOKER"
+    And it should show the Joker symbol "🃏"
+    And it should have a purple gradient background
+    And it should have a purple border
+    And it should have a purple shadow effect
+
+  Scenario: Joker Deck Management
+    Given I start a new game
+    Then the deck should contain 54 cards (52 standard + 2 Jokers)
+    When I reach level 2
+    Then 2 additional Jokers should be added to the deck
+    When I reach level 3
+    Then 2 more Jokers should be added to the deck
+    And this pattern should continue for each level
+
+  Scenario: Joker Hand Evaluation
+    Given I have a hand with a Joker
+    Then the Joker should act as a wild card
+    And only one Joker should be usable per hand
+    And the Joker should automatically assume the most advantageous value and suit
+    When multiple hands are possible with the Joker
+    Then it should choose the highest scoring hand
+
+  Scenario Outline: Joker Hand Examples
+    Given I have the following cards including a Joker:
+      | Card 1 | Card 2 | Card 3 | Card 4 | Card 5  |
+      | <c1>   | <c2>   | <c3>   | <c4>   | JOKER   |
+    Then the hand should be evaluated as <hand_type>
+    And I should receive <points> base points
+
+    Examples:
+      | c1        | c2        | c3        | c4        | hand_type     | points |
+      | A♠        | K♠        | Q♠        | J♠        | Royal Flush   | 2000   |
+      | 9♥        | 8♥        | 7♥        | 6♥        | Straight Flush| 1000   |
+      | K♣        | K♥        | K♦        | K♠        | Four of a Kind| 500    |
+      | Q♦        | Q♣        | Q♥        | 2♠        | Full House    | 300    |
+      | A♦        | 3♦        | 7♦        | J♦        | Flush         | 200    |
+      | 8♣        | 9♥        | 10♦       | J♣        | Straight      | 150    |
+
+  Scenario: Multiple Jokers in Hand
+    Given I have a hand with multiple Jokers
+    Then only one Joker should be used for hand evaluation
+    And the other Jokers should be treated as regular cards
+    When evaluating the hand
+    Then it should try all possible combinations using one Joker
+    And choose the highest scoring valid hand
+
+  Scenario: Joker Visual Effects
+    Given a Joker card is being matched
+    Then it should show the same golden pulse effect as other cards
+    And it should maintain its purple color scheme during the animation
+    When the Joker is being removed
+    Then it should show the same removal animation as other cards
+    But with purple-tinted effects

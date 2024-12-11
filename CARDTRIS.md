@@ -38,9 +38,9 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Card text:
   - Value: positioned at top half of the card, font-size as large as possible while still fitting
   - Suit: positioned at bottom half of the card, font-size as large as possible while still fitting
-  - Colors: red for hearts/diamonds, black for clubs/spades
-  - Values displayed as: A (1), 2-10, J (11), Q (12), K (13)
-  - Suits displayed as: ♥ ♦ ♣ ♠
+  - Colors: red for hearts/diamonds, black for clubs/spades, purple for jokers
+  - Values displayed as: A (1), 2-10, J (11), Q (12), K (13), JOKER
+  - Suits displayed as: ♥ ♦ ♣ ♠ 🃏
 
 ## Visual Design
 - Dark theme with gradient background (#1a0f2e to #2c1654)
@@ -304,12 +304,16 @@ The game ends when:
   - Explosion animations
 
 ## Deck Management
-- Uses a standard 52-card deck (no jokers)
-- Each card appears exactly once in the deck
+- Base deck consists of 54 cards (standard 52-card deck plus 2 Jokers)
+- Each level beyond Level 1 adds 2 additional Jokers to the deck
+- Jokers are "wild" cards that can represent any card needed to complete a poker hand
+- When using a Joker in a hand:
+  - The Joker automatically assumes the most advantageous value/suit for the highest possible hand
+  - Only one Joker can be used per poker hand
 - Cards are uniquely identified by:
-  - Suit (hearts ♥, diamonds ♦, clubs ♣, spades ♠)
-  - Value (A=1, 2-10, J=11, Q=12, K=13)
+  - Suit (hearts ♥, diamonds ♦, clubs ♣, spades ♠, joker 🃏)
+  - Value (A=1, 2-10, J=11, Q=12, K=13, JOKER)
 - When cards are matched and removed from the board:
   - They are returned to the deck
   - The deck is reshuffled when empty
-- Duplicate cards are impossible by design
+- Duplicate cards are impossible by design (except for Jokers, which increase with level)
