@@ -131,14 +131,14 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Once a card stops, it locks in place and a new card appears at the top
 - Player can:
   - Tap left or right of card to move one column in that direction
-  - Tap the card to instantly drop it to lowest position in current column
+  - Use Quick Drop button to instantly drop card to lowest position in current column
 
 ### Hand Formation and Effects
 - Valid poker hands can be formed in two ways:
   - 5 cards in a horizontal row
   - 5 cards in a vertical column
-- When a valid poker hand is formed:
-  - The cards that make up the hand pulse with a golden glow
+- When a valid poker hand is formed by a card that settles on top of an existing card, or settles on the bottom of the board:
+  - The cards that make up the hand pulse with a golden glow (Eg. If the 5th card completes a pair, only the pair pulses with a golden glow)
   - If the hand is valid for the current level:
     - Game pauses until the animation finishes
     - Notification appears showing hand type and points earned
@@ -146,7 +146,7 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
     - Cards above fall down to fill empty spaces
   - If the hand is not valid for the current level:
     - Cards pulse with golden glow briefly
-    - Notification appears showing what hand was not matched (e.g., "Level 3: Two Pair not matched!")
+    - Notification appears for 3 seconds showing what hand was not matched (e.g., "Level 3: Two Pair not matched!")
     - Cards remain on the board
 - Multiple hands can be evaluated simultaneously
 - After cards are removed:
@@ -206,9 +206,10 @@ Final points are calculated by multiplying the base points by the level multipli
 ### Controls
 - Touch controls:
   - Left/right touch areas for movement
-  - Quick Drop button below the boardfor instant placement
+  - Quick Drop button below the board for instant placement
 - Mouse controls (for testing):
   - Click left/right areas for movement
+- Spacebar: Alternative control for Quick Drop (for testing)
 
 ### Card System
 - Standard 52-card deck implementation
@@ -286,7 +287,8 @@ The game ends when:
 
 ## Controls
 - Tap left/right: Move card one column in that direction
-- Tap card: Drop card instantly in current column
+- Quick Drop button: Drop card instantly to lowest position in current column
+- Spacebar: Alternative control for Quick Drop (for testing)
 
 ## Special Features
 - Next card preview
