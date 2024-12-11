@@ -155,16 +155,26 @@ class Board {
 
     checkForPokerHands() {
         const hands = [];
+        
         // Check horizontal hands
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x <= this.width - 5; x++) {
-                const cards = this.grid[y].slice(x, x + 5);
-                // Only consider if we have all 5 cards
-                if (!cards.includes(null)) {
-                    const positions = Array.from({length: 5}, (_, i) => ({x: x + i, y}));
+                const cards = [];
+                const positions = [];
+                
+                // Collect 5 cards and their positions
+                for (let i = 0; i < 5; i++) {
+                    const card = this.grid[y][x + i];
+                    if (card === null) break;
+                    cards.push(card);
+                    positions.push({x: x + i, y});
+                }
+                
+                // Only add if we found exactly 5 cards
+                if (cards.length === 5) {
                     hands.push({
-                        cards: cards,
-                        positions: positions
+                        cards,
+                        positions
                     });
                 }
             }
@@ -173,17 +183,34 @@ class Board {
         // Check vertical hands
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y <= this.height - 5; y++) {
-                const cards = Array.from({length: 5}, (_, i) => this.grid[y + i][x]);
-                // Only consider if we have all 5 cards
-                if (!cards.includes(null)) {
-                    const positions = Array.from({length: 5}, (_, i) => ({x, y: y + i}));
+                const cards = [];
+                const positions = [];
+                
+                // Collect 5 cards and their positions
+                for (let i = 0; i < 5; i++) {
+                    const card = this.grid[y + i][x];
+                    if (card === null) break;
+                    cards.push(card);
+                    positions.push({x, y: y + i});
+                }
+                
+                // Only add if we found exactly 5 cards
+                if (cards.length === 5) {
                     hands.push({
-                        cards: cards,
-                        positions: positions
+                        cards,
+                        positions
                     });
                 }
             }
         }
+
+        console.log('Found potential hands:', hands.length);
+        hands.forEach((hand, index) => {
+            console.log(`Hand ${index}:`, 
+                hand.cards.map(card => `${card.value}${card.suit[0]}`),
+                'at positions:', hand.positions
+            );
+        });
 
         return hands;
     }

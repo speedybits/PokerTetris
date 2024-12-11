@@ -6,10 +6,11 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 ## Core Display Specifications
 
 ### Screen Elements
-- Score display: top-right corner (10% of viewport height). Two rows of text, with the first row saying "Score" and the second row showing the score value.
-- Level display: top-center showing current level and point multiplier (10% of viewport height)
+- Game info display: top-right corner (10% of viewport height). Two rows of text:
+  - First row: Current level and point multiplier (e.g., "Level 3 (1.4x)")
+  - Second row: Current score value
 - Next card preview: top-left corner (10% of viewport height... 1:2 aspect ratio)
-- Board: centered on screen below Next card preview and Score display
+- Board: centered on screen below Next card preview and Game info display
 - Quick Drop button: below board (10% of viewport height)
 - Touch areas: left/right sides of screen
 
@@ -78,7 +79,7 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Players can move cards left/right as they fall
 - Game info panels in top corners showing:
   - Next card preview (left)
-  - Current score (right)
+  - Level and score info (right, two rows)
 - Quick Drop button at bottom
 - Touch areas for left/right movement
 - Translucent panels with blur effect
@@ -137,8 +138,8 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
   - 5 cards in a horizontal row
   - 5 cards in a vertical column
 - When a poker hand is formed:
+  - Of the 5 cards in a row, only the cards that make up the winning hand pulse with a golden glow
   - Game pauses until the animation finishes and the remaining cards have settled
-  - Matching cards pulse with a golden glow
   - Notification appears showing hand type and points earned
   - Multiple hands show total points earned
   - Cards "explode" with animation before being removed

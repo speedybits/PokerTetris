@@ -36,6 +36,8 @@ class Game {
         this.board = new Board();
         this.deck = new Deck();
         this.score = 0;
+        this.level = 1;
+        this.cardsUsed = 0;
         this.currentCard = null;
         this.currentX = 3;
         this.currentY = 0;
@@ -196,6 +198,14 @@ class Game {
     spawnCard() {
         this.currentCard = this.nextCard;
         this.nextCard = this.deck.draw();
+        this.cardsUsed++;
+        
+        // Check if we've used all cards in the deck
+        if (this.cardsUsed >= 52) {
+            this.level++;
+            this.cardsUsed = 0;
+        }
+
         this.currentX = 3;
         this.currentY = 0;
 
@@ -249,123 +259,73 @@ class Game {
         if (hands.length > 0) {
             console.log('Found hands:', hands.length);
             this.isPaused = true;
+            let totalPoints = 0;
+            let validHandFound = false;
+            let cardsToRemove = new Set();
             
-            let totalScore = 0;
-            const handResults = hands.map(hand => {
-                const result = this.evaluatePokerHand(hand.cards);
-                console.log('Evaluated hand:', result);
+            hands.forEach((hand, index) => {
+                console.log(`Evaluating hand ${index}:`, 
+                    hand.cards.map(card => `${card.value}${card.suit[0]}`));
+                const handResult = this.evaluatePokerHand(hand.cards);
+                console.log(`Hand ${index} result:`, handResult);
                 
-                if (result.score === 0) return null;
-
-                const positionsToRemove = result.cardsToRemove.map(idx => hand.positions[idx]);
-                console.log('Positions to remove:', positionsToRemove);
-                
-                // Start matching animation
-                positionsToRemove.forEach(pos => {
-                    const cell = this.board.element.children[pos.y * this.board.width + pos.x];
-                    console.log('Found cell:', cell);
-                    if (cell.firstChild) {
-                        const card = cell.firstChild;
-                        console.log('Animating card:', card.textContent);
-                        // Apply initial scale animation
-                        card.classList.add('matching');
-                        console.log('Applied initial animation styles');
-                    }
-                });
-
-                totalScore += result.score;
-                return {
-                    message: `${result.name}: ${result.score} points!`,
-                    score: result.score,
-                    positions: positionsToRemove,
-                    cards: result.cardsToRemove.map(idx => hand.cards[idx])
-                };
-            }).filter(result => result !== null);
-
-            console.log('Processed hand results:', handResults);
-
-            if (handResults.length === 0) {
-                console.log('No valid hands found');
-                this.isPaused = false;
-                return;
-            }
-
-            // Show notification
-            const notification = document.createElement('div');
-            notification.className = 'poker-notification';
-            if (handResults.length === 1) {
-                notification.textContent = `${handResults[0].message}`;
-            } else {
-                notification.textContent = `Multiple hands: ${totalScore} points!`;
-            }
-            document.body.appendChild(notification);
-            console.log('Added notification:', notification.textContent);
-
-            // Highlight matching cards and start animations
-            handResults.forEach(result => {
-                result.positions.forEach(pos => {
-                    const cell = this.board.element.children[pos.y * this.board.width + pos.x];
-                    if (cell.firstChild) {
-                        const card = cell.firstChild;
-                        console.log('Starting animation for card:', card.textContent);
+                if (handResult.score > 0 && this.isHandValid(handResult.name)) {
+                    validHandFound = true;
+                    totalPoints += Math.ceil(handResult.score * this.getPointMultiplier());
+                    console.log(`Valid hand found! Points awarded:`, 
+                        handResult.score, 
+                        'with multiplier:', 
+                        this.getPointMultiplier());
+                    
+                    // Only highlight and remove the cards that are part of the winning hand
+                    handResult.matchingIndices.forEach(idx => {
+                        const pos = hand.positions[idx];
+                        cardsToRemove.add(`${pos.x},${pos.y}`);
                         
-                        // Make card much larger and red
-                        card.style.transform = 'scale(1.5)';
-                        card.style.backgroundColor = 'red';
-                        card.style.transition = 'all 1s ease-in-out';
-                        card.style.zIndex = '1000';
-                        console.log('Applied initial animation styles');
-                        
-                        // After 1 second, start pulsing
-                        setTimeout(() => {
-                            card.style.animation = 'pulse 0.5s ease-in-out infinite';
-                            card.style.backgroundColor = 'yellow';
-                            console.log('Started pulsing animation');
-                        }, 1000);
-                    }
-                });
-            });
-
-            // After match animation completes (4 seconds)
-            setTimeout(() => {
-                console.log('Starting card removal sequence');
-                handResults.forEach(result => {
-                    result.positions.forEach(pos => {
-                        const cell = this.board.element.children[pos.y * this.board.width + pos.x];
-                        if (cell.firstChild) {
-                            console.log('Removing card:', cell.firstChild.textContent);
-                            cell.firstChild.remove();
+                        // Highlight only the matching cards
+                        const cardElement = document.querySelector(
+                            `.card-cell[data-x="${pos.x}"][data-y="${pos.y}"] .card`
+                        );
+                        if (cardElement) {
+                            cardElement.classList.add('matching');
                         }
                     });
-                    
-                    this.score += result.score;
-                    result.cards.forEach(card => this.deck.addCard(card));
-                });
-                
-                const allPositions = handResults.flatMap(result => result.positions);
-                this.board.removeCards(allPositions);
-                console.log('Cards removed, applying gravity');
-                
-                document.getElementById('score').textContent = this.score;
-                notification.remove();
-                console.log('Notification removed');
+                } else {
+                    console.log(`Hand ${index} invalid:`, 
+                        handResult.name, 
+                        'Score:', handResult.score,
+                        'Valid for level:', this.isHandValid(handResult.name));
+                }
+            });
 
-                // Wait for gravity animations to complete (1 second)
+            if (totalPoints > 0) {
+                this.score += totalPoints;
+                console.log('Updated total score:', this.score);
+                document.getElementById('score').textContent = this.score;
+            }
+
+            if (validHandFound) {
+                // Convert Set back to array of positions
+                const positionsToRemove = Array.from(cardsToRemove)
+                    .map(pos => {
+                        const [x, y] = pos.split(',');
+                        return {x: parseInt(x), y: parseInt(y)};
+                    });
+
                 setTimeout(() => {
-                    console.log('Cards have settled, checking for new hands');
-                    const newHands = this.board.checkForPokerHands();
-                    console.log('Found new hands:', newHands.length);
-                    if (newHands.length === 0) {
+                    console.log('Removing cards at positions:', positionsToRemove);
+                    this.board.removeCards(positionsToRemove);
+                    
+                    setTimeout(() => {
                         this.isPaused = false;
-                        console.log('Game unpaused');
-                    } else {
-                        // If new hands are found, check them after a brief delay
-                        setTimeout(() => {
-                            this.checkForMatches();
-                        }, 100);
-                    }
-                }, 1000); // Wait for gravity animation to complete
-            }, 4000); // Match animation duration
+                        this.checkForMatches();
+                    }, 500);
+                }, 1000);
+            } else {
+                this.isPaused = false;
+            }
+        } else {
+            this.isPaused = false;
         }
     }
 
@@ -374,102 +334,130 @@ class Game {
         const sortedCards = [...cards].sort((a, b) => a.value - b.value);
         
         // Check for flush (all same suit)
-        const isFlush = sortedCards.every(card => card.suit === sortedCards[0].suit);
+        const isFlush = cards.every(card => card.suit === cards[0].suit);
         
-        // Check for straight (consecutive values)
-        let isStraight = true;
-        // First check normal straight
-        for (let i = 1; i < sortedCards.length; i++) {
-            if (sortedCards[i].value !== sortedCards[i-1].value + 1) {
-                isStraight = false;
-                break;
-            }
-        }
+        // Check for straight
+        let isStraight = false;
         
-        // If not a normal straight, check for Ace-high straight (10-J-Q-K-A)
-        if (!isStraight && sortedCards[0].value === 1) {
+        // Check normal straight
+        if (sortedCards[4].value - sortedCards[0].value === 4 &&
+            new Set(sortedCards.map(c => c.value)).size === 5) {
             isStraight = true;
-            const expectedValues = [1, 10, 11, 12, 13];
-            for (let i = 0; i < sortedCards.length; i++) {
-                if (sortedCards[i].value !== expectedValues[i]) {
-                    isStraight = false;
-                    break;
-                }
-            }
         }
         
-        // If still not a straight, check for Ace-low straight (A-2-3-4-5)
-        if (!isStraight && sortedCards[0].value === 1) {
-            isStraight = true;
-            for (let i = 1; i < sortedCards.length; i++) {
-                if (sortedCards[i].value !== i + 1) {
-                    isStraight = false;
-                    break;
-                }
-            }
+        // Check Ace-high straight (10-J-Q-K-A)
+        if (!isStraight && sortedCards[0].value === 1 && sortedCards[1].value === 10) {
+            isStraight = sortedCards[1].value === 10 &&
+                         sortedCards[2].value === 11 &&
+                         sortedCards[3].value === 12 &&
+                         sortedCards[4].value === 13;
         }
-
-        // Count card values for pairs, three of a kind, etc.
-        const valueCounts = {};
+        
+        // Count card values
+        const valueCounts = new Map();
         cards.forEach((card, index) => {
-            valueCounts[card.value] = valueCounts[card.value] || { count: 0, indices: [] };
-            valueCounts[card.value].count++;
-            valueCounts[card.value].indices.push(index);
+            if (!valueCounts.has(card.value)) {
+                valueCounts.set(card.value, { count: 0, indices: [] });
+            }
+            const data = valueCounts.get(card.value);
+            data.count++;
+            data.indices.push(index);
         });
-        const counts = Object.values(valueCounts).map(v => v.count);
-
-        // Royal Flush
-        if (isFlush && isStraight && sortedCards[0].value === 1 && sortedCards[4].value === 13) {
-            return { score: 2000, cardsToRemove: [0, 1, 2, 3, 4], name: "Royal Flush" };
-        }
-        // Straight Flush
+        
+        const counts = Array.from(valueCounts.values()).map(v => v.count);
+        
+        // Check hands in descending order of value
         if (isFlush && isStraight) {
-            return { score: 1000, cardsToRemove: [0, 1, 2, 3, 4], name: "Straight Flush" };
+            if (sortedCards[0].value === 1 && sortedCards[4].value === 13) {
+                return { 
+                    score: 2000, 
+                    name: "Royal Flush",
+                    matchingIndices: [0, 1, 2, 3, 4]  // All cards are part of the hand
+                };
+            }
+            return { 
+                score: 1000, 
+                name: "Straight Flush",
+                matchingIndices: [0, 1, 2, 3, 4]  // All cards are part of the hand
+            };
         }
+        
         // Four of a Kind
-        if (counts.includes(4)) {
-            const fourOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 4);
-            return { score: 500, cardsToRemove: fourOfAKind[1].indices, name: "Four of a Kind" };
+        for (const [value, data] of valueCounts.entries()) {
+            if (data.count === 4) {
+                return { 
+                    score: 500, 
+                    name: "Four of a Kind",
+                    matchingIndices: data.indices  // Only the 4 matching cards
+                };
+            }
         }
+        
         // Full House
-        if (counts.includes(3) && counts.includes(2)) {
-            const threeOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 3);
-            const pair = Object.entries(valueCounts).find(([_, v]) => v.count === 2);
+        let threeOfAKindIndices = null;
+        let pairIndices = null;
+        for (const [value, data] of valueCounts.entries()) {
+            if (data.count === 3) threeOfAKindIndices = data.indices;
+            if (data.count === 2) pairIndices = data.indices;
+        }
+        if (threeOfAKindIndices && pairIndices) {
             return { 
                 score: 300, 
-                cardsToRemove: [...threeOfAKind[1].indices, ...pair[1].indices], 
-                name: "Full House" 
+                name: "Full House",
+                matchingIndices: [...threeOfAKindIndices, ...pairIndices]
             };
-        }
-        // Flush
-        if (isFlush) {
-            return { score: 200, cardsToRemove: [0, 1, 2, 3, 4], name: "Flush" };
-        }
-        // Straight
-        if (isStraight) {
-            return { score: 150, cardsToRemove: [0, 1, 2, 3, 4], name: "Straight" };
-        }
-        // Three of a Kind
-        if (counts.includes(3)) {
-            const threeOfAKind = Object.entries(valueCounts).find(([_, v]) => v.count === 3);
-            return { score: 100, cardsToRemove: threeOfAKind[1].indices, name: "Three of a Kind" };
-        }
-        // Two Pair
-        if (counts.filter(count => count === 2).length === 2) {
-            const pairs = Object.entries(valueCounts).filter(([_, v]) => v.count === 2);
-            return { 
-                score: 50, 
-                cardsToRemove: [...pairs[0][1].indices, ...pairs[1][1].indices], 
-                name: "Two Pair" 
-            };
-        }
-        // One Pair
-        if (counts.includes(2)) {
-            const pair = Object.entries(valueCounts).find(([_, v]) => v.count === 2);
-            return { score: 25, cardsToRemove: pair[1].indices, name: "One Pair" };
         }
         
-        return { score: 0, cardsToRemove: [], name: "No Hand" };
+        if (isFlush) {
+            return { 
+                score: 200, 
+                name: "Flush",
+                matchingIndices: [0, 1, 2, 3, 4]  // All cards are part of the hand
+            };
+        }
+        
+        if (isStraight) {
+            return { 
+                score: 150, 
+                name: "Straight",
+                matchingIndices: [0, 1, 2, 3, 4]  // All cards are part of the hand
+            };
+        }
+        
+        // Three of a Kind
+        for (const [value, data] of valueCounts.entries()) {
+            if (data.count === 3) {
+                return { 
+                    score: 100, 
+                    name: "Three of a Kind",
+                    matchingIndices: data.indices  // Only the 3 matching cards
+                };
+            }
+        }
+        
+        // Two Pair
+        const pairs = Array.from(valueCounts.entries())
+            .filter(([_, data]) => data.count === 2);
+        if (pairs.length === 2) {
+            return { 
+                score: 50, 
+                name: "Two Pair",
+                matchingIndices: [...pairs[0][1].indices, ...pairs[1][1].indices]  // Only the 4 paired cards
+            };
+        }
+        
+        // One Pair
+        for (const [value, data] of valueCounts.entries()) {
+            if (data.count === 2) {
+                return { 
+                    score: 25, 
+                    name: "One Pair",
+                    matchingIndices: data.indices  // Only the 2 matching cards
+                };
+            }
+        }
+        
+        return { score: 0, name: "No Hand", matchingIndices: [] };
     }
 
     gameLoop() {
@@ -525,6 +513,66 @@ class Game {
             console.log(`Card dropped from row ${initialY} to row ${this.currentY}`);
             this.lockCard();
         }
+    }
+
+    getPointMultiplier() {
+        return 1 + (this.level - 1) * 0.2;
+    }
+
+    isHandValid(handType) {
+        // Level restrictions as per markdown:
+        // Level 1: All poker hands are valid (except high card)
+        // Level 2: Pairs no longer count
+        // Level 3: Two Pairs also no longer count
+        // Level 4: Three of a Kind also no longer count
+        // Level 5: Straight also no longer count
+        // Level 6: Flush also no longer count
+        // Level 7: Full House also no longer count
+        // Level 8: Four of a Kind also no longer count
+        // Level 9+: Only Royal Flush and Straight Flush count
+        
+        const invalidHandsByLevel = {
+            2: ['One Pair'],
+            3: ['One Pair', 'Two Pair'],
+            4: ['One Pair', 'Two Pair', 'Three of a Kind'],
+            5: ['One Pair', 'Two Pair', 'Three of a Kind', 'Straight'],
+            6: ['One Pair', 'Two Pair', 'Three of a Kind', 'Straight', 'Flush'],
+            7: ['One Pair', 'Two Pair', 'Three of a Kind', 'Straight', 'Flush', 'Full House'],
+            8: ['One Pair', 'Two Pair', 'Three of a Kind', 'Straight', 'Flush', 'Full House', 'Four of a Kind']
+        };
+
+        // Level 9 and above only allow Royal Flush and Straight Flush
+        if (this.level >= 9) {
+            return handType === 'Royal Flush' || handType === 'Straight Flush';
+        }
+
+        // For other levels, check if the hand type is invalid for current level
+        return !invalidHandsByLevel[this.level]?.includes(handType);
+    }
+
+    calculateHandPoints(handType) {
+        const basePoints = {
+            'Royal Flush': 2000,
+            'Straight Flush': 1000,
+            'Four of a Kind': 500,
+            'Full House': 300,
+            'Flush': 200,
+            'Straight': 150,
+            'Three of a Kind': 100,
+            'Two Pair': 50,
+            'One Pair': 25
+        };
+
+        // If the hand type is not valid for current level, return 0 points
+        if (!this.isHandValid(handType)) {
+            return 0;
+        }
+
+        // Calculate points with level multiplier and round up
+        const points = basePoints[handType];
+        if (!points) return 0;
+        
+        return Math.ceil(points * this.getPointMultiplier());
     }
 }
 
