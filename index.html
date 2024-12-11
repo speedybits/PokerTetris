@@ -325,7 +325,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 0 8px #ffd700, 0 0 15px rgba(255,215,0,0.3);
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             color: #ffd700;
             text-shadow: 0 0 8px rgba(255,215,0,0.5);
@@ -333,7 +333,9 @@
             white-space: nowrap;
             height: 6vh;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.2;
         }
 
         /* Touch areas adjusted to match new board position */
@@ -549,7 +551,7 @@
             <div id="game-info">
                 <div id="next-card"></div>
             </div>
-            <div id="score-display">Score: <span id="score">0</span></div>
+            <div id="score-display"></div>
             <div id="game-board"></div>
             <div id="touch-left" class="touch-area"></div>
             <div id="touch-right" class="touch-area"></div>

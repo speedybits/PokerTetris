@@ -6,6 +6,7 @@ class Game {
         this.baseDropInterval = 500; // Base speed of 1 second
         this.minDropInterval = 200;   // Maximum speed (minimum interval) of 0.2 seconds
         this.isPaused = false;  // Add pause state
+        this.updateGameInfo();
 
         // Add keyboard event listener
         document.addEventListener('keydown', this.handleKeyPress.bind(this));
@@ -217,6 +218,9 @@ class Game {
         cardDiv.innerHTML = this.nextCard.toString();
         nextCardElement.appendChild(cardDiv);
 
+        // Update game info display
+        this.updateGameInfo();
+
         if (!this.board.isValidPosition(this.currentX, this.currentY)) {
             this.endGame();
         }
@@ -301,7 +305,7 @@ class Game {
             if (totalPoints > 0) {
                 this.score += totalPoints;
                 console.log('Updated total score:', this.score);
-                document.getElementById('score').textContent = this.score;
+                this.updateGameInfo();
             }
 
             if (validHandFound) {
@@ -573,6 +577,14 @@ class Game {
         if (!points) return 0;
         
         return Math.ceil(points * this.getPointMultiplier());
+    }
+
+    updateGameInfo() {
+        const scoreDisplay = document.getElementById('score-display');
+        scoreDisplay.innerHTML = `
+            Level ${this.level} (${52 - this.cardsUsed} cards left)<br>
+            Score: ${this.score}
+        `;
     }
 }
 
