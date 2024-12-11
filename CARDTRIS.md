@@ -161,12 +161,12 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Each time all 52 cards are used, the level increases by 1
 - Each level affects gameplay in two ways:
   1. Point Multiplier:
-     - Level 1: 1.0x points
-     - Level 2: 1.2x points
-     - Level 3: 1.4x points
-     - Level 4: 1.6x points
-     - Level 5: 1.8x points
-     - And so on (adding 0.2x per level)
+     - Level 1: 1x points
+     - Level 2: 2x points
+     - Level 3: 3x points
+     - Level 4: 4x points
+     - Level 5: 5x points
+     - And so on (adding 1x per level)
      - All point calculations are rounded up to the nearest integer
   2. Hand Restrictions:
      - Level 1: All poker hands are valid (except high card)
