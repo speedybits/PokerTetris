@@ -7,7 +7,7 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 
 ### Screen Elements
 - Game info display: top-right corner (10% of viewport height). Two rows of text:
-  - First row: Current level and point multiplier (e.g., "Level 3 (1.4x)")
+  - First row: Current level and cards left until next level (e.g., "Level 3 (4 cards left)")
   - Second row: Current score value
 - Next card preview: top-left corner (10% of viewport height... 1:2 aspect ratio)
 - Board: centered on screen below Next card preview and Game info display
