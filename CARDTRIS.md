@@ -137,21 +137,24 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Valid poker hands can be formed in two ways:
   - 5 cards in a horizontal row
   - 5 cards in a vertical column
-- When a poker hand is formed:
-  - Of the 5 cards in a row, only the cards that make up the winning hand pulse with a golden glow
-  - Game pauses until the animation finishes and the remaining cards have settled
-  - Notification appears showing hand type and points earned
-  - Multiple hands show total points earned
-  - Cards "explode" with animation before being removed
-  - After removal, cards above fall down to fill empty spaces
+- When a valid poker hand is formed:
+  - The cards that make up the hand pulse with a golden glow
+  - If the hand is valid for the current level:
+    - Game pauses until the animation finishes
+    - Notification appears showing hand type and points earned
+    - Cards "explode" with animation and are removed
+    - Cards above fall down to fill empty spaces
+  - If the hand is not valid for the current level:
+    - Cards pulse with golden glow briefly
+    - Notification appears showing what hand was not matched (e.g., "Level 3: Two Pair not matched!")
+    - Cards remain on the board
 - Multiple hands can be evaluated simultaneously
-- Cards not part of a winning hand remain on the board
-- Matched cards are removed and returned to the deck
-- Gravity affects remaining cards:
-  - Cards above removed matches fall down slow enough for the player to see
+- After cards are removed:
+  - Cards above fall down to fill empty spaces
   - Cards continue falling until they hit another card or the bottom
   - Multiple cards can fall simultaneously
   - New matches can form after cards fall
+- Matched cards that are removed are returned to the deck
 
 ### Level System
 - Players start at Level 1
@@ -167,13 +170,13 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
      - All point calculations are rounded up to the nearest integer
   2. Hand Restrictions:
      - Level 1: All poker hands are valid (except high card)
-     - Level 2: Pairs no longer count as valid hands
+     - Level 2: Pairs no longer count
      - Level 3: Two Pairs also no longer count
      - Level 4: Three of a Kind also no longer count
-     - Level 5: Straight also no longer counts
-     - Level 6: Flush also no longer counts
-     - Level 7: Full House also no longer counts
-     - Level 8: Four of a Kind also no longer counts
+     - Level 5: Straight also no longer count
+     - Level 6: Flush also no longer count
+     - Level 7: Full House also no longer count
+     - Level 8: Four of a Kind also no longer count
      - Level 9+: Only Royal Flush and Straight Flush count
 
 ### Scoring System
