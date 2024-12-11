@@ -520,7 +520,7 @@ class Game {
     }
 
     getPointMultiplier() {
-        return 1 + (this.level - 1) * 0.2;
+        return (this.level);
     }
 
     isHandValid(handType) {
