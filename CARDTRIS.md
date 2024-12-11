@@ -302,3 +302,14 @@ The game ends when:
   - Points earned display
   - Card highlight effects
   - Explosion animations
+
+## Deck Management
+- Uses a standard 52-card deck (no jokers)
+- Each card appears exactly once in the deck
+- Cards are uniquely identified by:
+  - Suit (hearts ♥, diamonds ♦, clubs ♣, spades ♠)
+  - Value (A=1, 2-10, J=11, Q=12, K=13)
+- When cards are matched and removed from the board:
+  - They are returned to the deck
+  - The deck is reshuffled when empty
+- Duplicate cards are impossible by design
