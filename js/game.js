@@ -219,6 +219,10 @@ class Game {
             this.level++;
             this.cardsUsed = 0;
             this.deck.setLevel(this.level);
+            
+            // Clear the board at the start of each new level
+            this.board = new Board();
+            
             this.showLevelPopup();  // Show level up popup
         }
 
