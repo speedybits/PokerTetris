@@ -5,6 +5,10 @@ class Card {
     }
 
     toString() {
+        if (this.suit === 'joker') {
+            return `<span class="number">JOKER</span><span class="suit">🃏</span>`;
+        }
+
         const valueMap = {
             1: 'A',
             11: 'J',
@@ -24,5 +28,9 @@ class Card {
 
     isRed() {
         return this.suit === 'hearts' || this.suit === 'diamonds';
+    }
+
+    isJoker() {
+        return this.suit === 'joker';
     }
 } 

@@ -1,11 +1,23 @@
 class Game {
     constructor() {
-        this.initializeScreens();
-        this.resetGame();
-        this.initializeControls();
+        this.level = 1;
+        this.score = 0;
+        this.cardsUsed = 0;
+        this.gameOver = false;
+        this.isPaused = false;
+        this.board = new Board();
+        this.deck = new Deck(this.level);
+        this.nextCard = this.deck.draw();
+        this.currentCard = null;
+        this.currentX = 2;
+        this.currentY = 0;
         this.baseDropInterval = 500; // Base speed of 1 second
-        this.minDropInterval = 200;   // Maximum speed (minimum interval) of 0.2 seconds
-        this.isPaused = false;  // Add pause state
+        this.minDropInterval = 200;  // Maximum speed (minimum interval) of 0.2 seconds
+        this.dropInterval = this.baseDropInterval;
+        this.lastDrop = 0;
+
+        this.initializeScreens();
+        this.initializeControls();
         this.updateGameInfo();
 
         // Add keyboard event listener
@@ -205,6 +217,7 @@ class Game {
         if (this.cardsUsed >= 52) {
             this.level++;
             this.cardsUsed = 0;
+            this.deck.setLevel(this.level);
         }
 
         this.currentX = 3;
@@ -214,7 +227,7 @@ class Game {
         const nextCardElement = document.getElementById('next-card');
         nextCardElement.innerHTML = '';
         const cardDiv = document.createElement('div');
-        cardDiv.className = `card ${this.nextCard.isRed() ? 'red' : ''}`;
+        cardDiv.className = `card ${this.nextCard.isRed() ? 'red' : ''} ${this.nextCard.isJoker() ? 'joker' : ''}`;
         cardDiv.innerHTML = this.nextCard.toString();
         nextCardElement.appendChild(cardDiv);
 
@@ -334,6 +347,43 @@ class Game {
     }
 
     evaluatePokerHand(cards) {
+        // If there are multiple Jokers, we'll only use one (as per requirements)
+        const jokerIndices = cards.map((card, index) => card.isJoker() ? index : -1).filter(i => i !== -1);
+        const jokerIndex = jokerIndices.length > 0 ? jokerIndices[0] : -1;
+
+        if (jokerIndex === -1) {
+            // No Jokers, evaluate normally
+            return this.evaluateRegularHand(cards);
+        }
+
+        // Try all possible card combinations with the Joker
+        let bestResult = { score: 0, name: "No Hand", matchingIndices: [] };
+        const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+        const values = Array.from({length: 13}, (_, i) => i + 1);
+
+        for (const suit of suits) {
+            for (const value of values) {
+                // Create a copy of the cards with the Joker replaced by the current possibility
+                const testCards = [...cards];
+                testCards[jokerIndex] = new Card(suit, value);
+                
+                // Evaluate this combination
+                const result = this.evaluateRegularHand(testCards);
+                
+                // Keep track of the best result
+                if (result.score > bestResult.score) {
+                    bestResult = {
+                        ...result,
+                        matchingIndices: result.matchingIndices.map(i => i === jokerIndex ? jokerIndex : i)
+                    };
+                }
+            }
+        }
+
+        return bestResult;
+    }
+
+    evaluateRegularHand(cards) {
         // Sort cards by value for easier evaluation
         const sortedCards = [...cards].sort((a, b) => a.value - b.value);
         
