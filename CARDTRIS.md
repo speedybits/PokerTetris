@@ -120,6 +120,13 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Score Notification:
   - Pop-in scale effect
   - Slide transition
+- Level Popup:
+  - Appears at start of each level
+  - Duration: 4 seconds
+  - Scale and fade-in animation
+  - Gradient background with neon glow
+  - Displays current level restrictions
+  - Fades out with scale effect
 
 ## Gameplay Mechanics
 
@@ -159,6 +166,14 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 ### Level System
 - Players start at Level 1
 - Each time all 52 cards are used, the level increases by 1
+- At the start of each level:
+  - Game pauses while the message is displayed (4 seconds)
+  - Large popup message appears with Vegas-style animation
+  - Message shows current level and hand restrictions
+  - Examples:
+    - "Level 1: All Poker Hands Valid!"
+    - "Level 2: Pairs No Longer Count!"
+    - "Level 3: Two Pairs No Longer Count!"
 - Each level affects gameplay in two ways:
   1. Point Multiplier:
      - Level 1: 1x points
