@@ -229,8 +229,25 @@ class Game {
         const nextCardElement = document.getElementById('next-card');
         nextCardElement.innerHTML = '';
         const cardDiv = document.createElement('div');
-        cardDiv.className = `card ${this.nextCard.isRed() ? 'red' : ''} ${this.nextCard.isJoker() ? 'joker' : ''}`;
+        
+        // Debug logging
+        console.log('Creating card:', {
+            isRed: this.nextCard.isRed(),
+            isJoker: this.nextCard.isJoker(),
+            suit: this.nextCard.suit,
+            value: this.nextCard.value
+        });
+        
+        const classes = ['card'];
+        if (this.nextCard.isRed()) classes.push('red');
+        if (this.nextCard.isJoker()) classes.push('joker');
+        
+        cardDiv.className = classes.join(' ');
+        console.log('Card classes:', cardDiv.className);
+        
         cardDiv.innerHTML = this.nextCard.toString();
+        console.log('Card HTML:', cardDiv.outerHTML);
+        
         nextCardElement.appendChild(cardDiv);
 
         // Update game info display

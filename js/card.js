@@ -6,7 +6,7 @@ class Card {
 
     toString() {
         if (this.suit === 'joker') {
-            return `<span class="number">JOKER</span><span class="suit">🃏</span>`;
+            return `<span class="number">?</span>`;
         }
 
         const valueMap = {
