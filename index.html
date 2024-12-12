@@ -543,6 +543,42 @@
         .card.joker .suit {
             color: #800080;
         }
+
+        /* Level Popup */
+        #level-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
+            color: white;
+            padding: 30px 60px;
+            border-radius: 20px;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1000;
+            opacity: 0;
+            border: 3px solid #fff;
+            box-shadow: 
+                0 0 20px #ff00de,
+                0 0 40px #ff00de,
+                0 0 60px #9900ff;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease-out;
+        }
+
+        #level-popup.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        #level-popup.fade-out {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0;
+        }
     </style>
 </head>
 <body>
@@ -559,6 +595,7 @@
 
     <!-- Game Screen -->
     <div id="game-screen" class="screen">
+        <div id="level-popup"></div>
         <div id="game-container">
             <div id="game-info">
                 <div id="next-card"></div>

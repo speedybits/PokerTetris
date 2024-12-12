@@ -64,6 +64,7 @@ class Game {
     startGame() {
         this.resetGame();
         this.showScreen('game-screen');
+        this.showLevelPopup();  // Show initial level popup
         this.spawnCard();
         this.gameLoop();
     }
@@ -218,6 +219,7 @@ class Game {
             this.level++;
             this.cardsUsed = 0;
             this.deck.setLevel(this.level);
+            this.showLevelPopup();  // Show level up popup
         }
 
         this.currentX = 3;
@@ -635,6 +637,48 @@ class Game {
             Level ${this.level} (${52 - this.cardsUsed} cards left)<br>
             Score: ${this.score}
         `;
+    }
+
+    showLevelPopup() {
+        const popup = document.getElementById('level-popup');
+        let message = '';
+
+        // Determine the message based on level
+        if (this.level === 1) {
+            message = "Level 1: All Poker Hands Valid!";
+        } else if (this.level === 2) {
+            message = "Level 2: Pairs No Longer Count!";
+        } else if (this.level === 3) {
+            message = "Level 3: Two Pairs No Longer Count!";
+        } else if (this.level === 4) {
+            message = "Level 4: Three of a Kind No Longer Count!";
+        } else if (this.level === 5) {
+            message = "Level 5: Straight No Longer Count!";
+        } else if (this.level === 6) {
+            message = "Level 6: Flush No Longer Count!";
+        } else if (this.level === 7) {
+            message = "Level 7: Full House No Longer Count!";
+        } else if (this.level === 8) {
+            message = "Level 8: Four of a Kind No Longer Count!";
+        } else {
+            message = `Level ${this.level}: Only Royal/Straight Flush!`;
+        }
+
+        // Set the message and show the popup
+        popup.textContent = message;
+        popup.classList.add('active');
+        
+        // Pause the game
+        this.isPaused = true;
+
+        // After 4 seconds, hide the popup and resume the game
+        setTimeout(() => {
+            popup.classList.add('fade-out');
+            setTimeout(() => {
+                popup.classList.remove('active', 'fade-out');
+                this.isPaused = false;
+            }, 300);
+        }, 4000);
     }
 }
 
