@@ -103,6 +103,8 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Hover animation with scale and glow
 - Matching animation with golden pulse
 - Explosion animation when removed
+- Joker cards display "?" symbol
+- Joker cards use standard card styling
 
 ## Animations
 - Card Match:
@@ -127,6 +129,10 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
   - Gradient background with neon glow
   - Displays current level restrictions
   - Fades out with scale effect
+  - Game fully pauses during popup display
+  - No cards spawn or move during popup
+  - Board is cleared before popup appears
+  - Game resumes only after popup finishes
 
 ## Gameplay Mechanics
 
@@ -167,9 +173,12 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Players start at Level 1
 - Each time all 52 cards are used, the level increases by 1
 - At the start of each level:
-  - Game pauses while the message is displayed (4 seconds)
+  - Game pauses completely while the message is displayed (4 seconds)
+  - Board is cleared of all cards
   - Large popup message appears with Vegas-style animation
   - Message shows current level and hand restrictions
+  - No cards spawn or move during the popup display
+  - Game resumes only after popup animation completes
   - Examples:
     - "Level 1: All Poker Hands Valid!"
     - "Level 2: Pairs No Longer Count!"

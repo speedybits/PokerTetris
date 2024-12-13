@@ -34,6 +34,12 @@ class Game {
             this.startGame();
         });
 
+        // How To Play button handler
+        document.querySelector('.how-to-play-button').addEventListener('click', () => {
+            this.showScreen('how-to-play-screen');
+            this.initializeHowToPlay();
+        });
+
         // Initials input handler
         const initialsInput = document.getElementById('initials');
         initialsInput.addEventListener('input', (e) => {
@@ -44,6 +50,61 @@ class Game {
                 this.submitScore(e.target.value);
             }
         });
+    }
+
+    initializeHowToPlay() {
+        let currentPage = 1;
+        const totalPages = 3;
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const doneButton = document.querySelector('.done-button');
+        const pageIndicator = document.querySelector('.page-indicator');
+        const contentContainer = document.querySelector('.how-to-play-content');
+
+        const updateNavigation = () => {
+            prevButton.disabled = currentPage === 1;
+            
+            // On the last page, hide Next and show Done
+            if (currentPage === totalPages) {
+                nextButton.style.display = 'none';
+                doneButton.style.display = 'inline-block';
+            } else {
+                nextButton.style.display = 'inline-block';
+                doneButton.style.display = 'none';
+            }
+            
+            pageIndicator.textContent = `Page ${currentPage}/${totalPages}`;
+
+            // Update visible page
+            document.querySelectorAll('.how-to-play-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.querySelector(`.how-to-play-page[data-page="${currentPage}"]`).classList.add('active');
+            
+            // Scroll to top of content
+            contentContainer.scrollTop = 0;
+        };
+
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updateNavigation();
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateNavigation();
+            }
+        });
+
+        doneButton.addEventListener('click', () => {
+            this.showScreen('start-screen');
+        });
+
+        // Initialize navigation state
+        updateNavigation();
     }
 
     resetGame() {
