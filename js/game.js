@@ -321,7 +321,8 @@ class Game {
             return;  // Don't continue with spawn until new level is started
         }
 
-        this.currentX = 3;
+        // Choose a random column between 0 and 4 (inclusive)
+        this.currentX = Math.floor(Math.random() * 5);
         this.currentY = 0;
 
         // Update next card display
