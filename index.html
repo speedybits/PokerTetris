@@ -538,11 +538,12 @@
             display: none;
         }
 
-        /* Poker notification - below score display */
+        /* Poker notification - centered on game board */
         .poker-notification {
-            position: fixed;
-            top: 60px;  /* Positioned below score display */
-            right: 10px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             background: linear-gradient(135deg, #ffd700 0%, #ff9900 100%);
             color: #1a0f2e;
             padding: 10px 20px;
@@ -558,12 +559,13 @@
             z-index: 1000;
             animation: notificationPop 0.5s ease-out forwards;
             white-space: nowrap;
+            pointer-events: none;
         }
 
         @keyframes notificationPop {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
 
         /* Test style to verify CSS loading */

@@ -395,6 +395,27 @@ class Game {
         this.spawnCard();
     }
 
+    showPokerHandNotification(handResult, positions) {
+        // Remove any existing notifications
+        const existingNotifications = document.querySelectorAll('.poker-notification');
+        existingNotifications.forEach(notification => notification.remove());
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'poker-notification';
+        const points = Math.ceil(handResult.score * this.getPointMultiplier());
+        notification.textContent = `${handResult.name}: ${points} points!`;
+
+        // Add to game board and remove after animation
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    }
+
     checkForMatches() {
         const hands = this.board.checkForPokerHands();
         console.log('Checking for hands:', hands);
@@ -421,8 +442,8 @@ class Game {
                         this.getPointMultiplier());
                     
                     // Only highlight and remove the cards that are part of the winning hand
-                    handResult.matchingIndices.forEach(idx => {
-                        const pos = hand.positions[idx];
+                    const matchingPositions = handResult.matchingIndices.map(idx => hand.positions[idx]);
+                    matchingPositions.forEach(pos => {
                         cardsToRemove.add(`${pos.x},${pos.y}`);
                         
                         // Highlight only the matching cards
@@ -433,11 +454,17 @@ class Game {
                             cardElement.classList.add('matching');
                         }
                     });
-                } else {
-                    console.log(`Hand ${index} invalid:`, 
-                        handResult.name, 
-                        'Score:', handResult.score,
-                        'Valid for level:', this.isHandValid(handResult.name));
+
+                    // Show notification next to the matched cards
+                    this.showPokerHandNotification(handResult, matchingPositions);
+                } else if (handResult.score > 0) {
+                    // Show notification for invalid hand due to level restriction
+                    const matchingPositions = handResult.matchingIndices.map(idx => hand.positions[idx]);
+                    const invalidNotification = {
+                        name: `Level ${this.level}: ${handResult.name} not matched!`,
+                        score: 0
+                    };
+                    this.showPokerHandNotification(invalidNotification, matchingPositions);
                 }
             });
 
