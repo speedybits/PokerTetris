@@ -54,7 +54,7 @@ class Game {
 
     initializeHowToPlay() {
         let currentPage = 1;
-        const totalPages = 3;
+        const totalPages = 4;
         const prevButton = document.getElementById('prev-page');
         const nextButton = document.getElementById('next-page');
         const doneButton = document.querySelector('.done-button');
