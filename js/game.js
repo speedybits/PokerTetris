@@ -5,6 +5,7 @@ class Game {
         this.cardsUsed = 0;
         this.gameOver = false;
         this.isPaused = false;
+        this.isLevelTransition = false;  // New flag for level transitions
         this.board = new Board();
         this.deck = new Deck(this.level);
         this.nextCard = this.deck.draw();
@@ -64,9 +65,36 @@ class Game {
     startGame() {
         this.resetGame();
         this.showScreen('game-screen');
-        this.showLevelPopup();  // Show initial level popup
-        this.spawnCard();
-        this.gameLoop();
+        this.startLevel();
+    }
+
+    startLevel() {
+        console.log('Starting level', this.level);
+        // 1. Game is paused and level transition starts
+        this.isPaused = true;
+        this.isLevelTransition = true;
+        
+        // 2. Board is cleared
+        this.board = new Board();
+        
+        // Clear any existing cards
+        this.currentCard = null;
+        this.nextCard = this.deck.draw();  // Draw first card but don't display yet
+        
+        // Clear next card display
+        const nextCardElement = document.getElementById('next-card');
+        nextCardElement.innerHTML = '';
+        
+        // Force a clean board display
+        this.board.updateDisplay(this.board.grid);
+        
+        // 3-6. Show popup, wait, then start game
+        this.showLevelPopup(() => {
+            console.log('Level popup finished, starting game');
+            this.isLevelTransition = false;  // Level transition ends
+            this.spawnCard();
+            this.gameLoop();
+        });
     }
 
     showScreen(screenId) {
@@ -210,6 +238,13 @@ class Game {
     }
 
     spawnCard() {
+        // Don't spawn cards if the game is paused or during level transition
+        if (this.isPaused || this.isLevelTransition) {
+            console.log('Attempted to spawn card while paused or during level transition');
+            return;
+        }
+
+        console.log('Spawning new card');
         this.currentCard = this.nextCard;
         this.nextCard = this.deck.draw();
         this.cardsUsed++;
@@ -220,10 +255,9 @@ class Game {
             this.cardsUsed = 0;
             this.deck.setLevel(this.level);
             
-            // Clear the board at the start of each new level
-            this.board = new Board();
-            
-            this.showLevelPopup();  // Show level up popup
+            // Start the new level sequence
+            this.startLevel();
+            return;  // Don't continue with spawn until new level is started
         }
 
         this.currentX = 3;
@@ -282,12 +316,19 @@ class Game {
     }
 
     lockCard() {
+        // Don't lock cards if the game is paused or during level transition
+        if (this.isPaused || this.isLevelTransition) {
+            console.log('Attempted to lock card while paused or during level transition');
+            return;
+        }
+
+        console.log('Locking card');
         this.board.placeCard(this.currentCard, this.currentX, this.currentY);
         
         // Quick initial match check
         setTimeout(() => {
             this.checkForMatches();
-        }, 300); // Keep quick initial check
+        }, 300);
 
         this.spawnCard();
     }
@@ -550,8 +591,8 @@ class Game {
     gameLoop() {
         const now = Date.now();
         
-        // Only update falling cards if the game isn't paused
-        if (!this.isPaused && !this.gameOver) {
+        // Only update falling cards if the game isn't paused and not in level transition
+        if (!this.isPaused && !this.gameOver && !this.isLevelTransition) {
             if (now - this.lastDrop > this.dropInterval) {
                 if (this.board.isValidPosition(this.currentX, this.currentY + 1)) {
                     this.currentY++;
@@ -561,15 +602,11 @@ class Game {
                 this.lastDrop = now;
             }
 
-            // Get a clean copy of the locked cards
+            // Only update display if not paused or in transition
             const displayGrid = this.board.grid.map(row => [...row]);
-
-            // Only add the current falling card to its current position
             if (this.currentCard) {
                 displayGrid[this.currentY][this.currentX] = this.currentCard;
             }
-
-            // Update the display with the current state
             this.board.updateDisplay(displayGrid);
         }
 
@@ -670,7 +707,7 @@ class Game {
         `;
     }
 
-    showLevelPopup() {
+    showLevelPopup(callback) {
         const popup = document.getElementById('level-popup');
         let message = '';
 
@@ -695,19 +732,19 @@ class Game {
             message = `Level ${this.level}: Only Royal/Straight Flush!`;
         }
 
-        // Set the message and show the popup
+        // 3. Show the popup
         popup.textContent = message;
         popup.classList.add('active');
-        
-        // Pause the game
-        this.isPaused = true;
 
-        // After 4 seconds, hide the popup and resume the game
+        // 4. Wait 4 seconds, then 5. Fade out popup
         setTimeout(() => {
             popup.classList.add('fade-out');
             setTimeout(() => {
                 popup.classList.remove('active', 'fade-out');
+                // 6. Game unpauses
                 this.isPaused = false;
+                // 7. Callback (which will spawn next card)
+                if (callback) callback();
             }, 300);
         }, 4000);
     }
