@@ -12,6 +12,10 @@
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
+        }
+
+        /* Game-specific touch restrictions */
+        #game-container, .touch-area, #game-board {
             touch-action: none;
         }
 
@@ -167,6 +171,8 @@
             box-shadow: 
                 0 0 10px #ffd700,
                 0 0 20px rgba(255,215,0,0.3);
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
         }
 
         .how-to-play-page {
