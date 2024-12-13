@@ -322,11 +322,16 @@ The game ends when:
 - Base deck consists of 54 cards (standard 52-card deck plus 2 Jokers)
 - Each level beyond Level 1 adds 2 additional Jokers to the deck
 - Jokers are "wild" cards that can represent any card needed to complete a poker hand
-- When using a Joker in a hand:
-  - The Joker automatically assumes the most advantageous value/suit for the highest possible hand
-  - Only one Joker can be used per poker hand
+- When using Jokers in a hand:
+  - Multiple Jokers can be used in the same hand
+  - Each Joker can independently represent any card needed
+  - Jokers automatically assume the most advantageous values/suits for the highest possible hand
+  - Example hands with multiple Jokers:
+    - Three Jokers + K♠ + Q♠ = Royal Flush (Jokers become A♠, 10♠, J♠)
+    - Two Jokers + K♠ + K♥ + K♣ = Five of a Kind (Jokers become K♦ and K♠)
+    - Two Jokers + A♠ + K♠ = Royal Flush (Jokers become Q♠ and J♠)
 - Cards are uniquely identified by:
-  - Suit (hearts ♥, diamonds ♦, clubs ♣, spades ♠, joker 🃏)
+  - Suit (hearts ♥, diamonds ♦, clubs ♣, spades ♠, joker ?)
   - Value (A=1, 2-10, J=11, Q=12, K=13, JOKER)
 - When cards are matched and removed from the board:
   - They are returned to the deck

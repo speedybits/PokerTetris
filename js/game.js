@@ -370,38 +370,48 @@ class Game {
     }
 
     evaluatePokerHand(cards) {
-        // If there are multiple Jokers, we'll only use one (as per requirements)
+        // Find all Jokers in the hand
         const jokerIndices = cards.map((card, index) => card.isJoker() ? index : -1).filter(i => i !== -1);
-        const jokerIndex = jokerIndices.length > 0 ? jokerIndices[0] : -1;
-
-        if (jokerIndex === -1) {
+        
+        if (jokerIndices.length === 0) {
             // No Jokers, evaluate normally
             return this.evaluateRegularHand(cards);
         }
 
-        // Try all possible card combinations with the Joker
+        // Try all possible combinations for each Joker
         let bestResult = { score: 0, name: "No Hand", matchingIndices: [] };
         const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
         const values = Array.from({length: 13}, (_, i) => i + 1);
 
-        for (const suit of suits) {
-            for (const value of values) {
-                // Create a copy of the cards with the Joker replaced by the current possibility
-                const testCards = [...cards];
-                testCards[jokerIndex] = new Card(suit, value);
-                
-                // Evaluate this combination
-                const result = this.evaluateRegularHand(testCards);
-                
-                // Keep track of the best result
+        // Helper function to recursively try all combinations
+        const tryJokerCombinations = (currentCards, jokerIndex) => {
+            // Base case: all Jokers have been assigned
+            if (jokerIndex >= jokerIndices.length) {
+                const result = this.evaluateRegularHand([...currentCards]);
                 if (result.score > bestResult.score) {
                     bestResult = {
                         ...result,
-                        matchingIndices: result.matchingIndices.map(i => i === jokerIndex ? jokerIndex : i)
+                        // Map back the matching indices to include Jokers
+                        matchingIndices: result.matchingIndices.map(i => {
+                            const originalIndex = jokerIndices.indexOf(i);
+                            return originalIndex >= 0 ? jokerIndices[originalIndex] : i;
+                        })
                     };
                 }
+                return;
             }
-        }
+
+            // Try each possible card for this Joker
+            for (const suit of suits) {
+                for (const value of values) {
+                    currentCards[jokerIndices[jokerIndex]] = new Card(suit, value);
+                    tryJokerCombinations(currentCards, jokerIndex + 1);
+                }
+            }
+        };
+
+        // Start the recursive evaluation with a copy of the cards
+        tryJokerCombinations([...cards], 0);
 
         return bestResult;
     }
