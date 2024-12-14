@@ -537,14 +537,25 @@ class Game {
 
                     // Show notification next to the matched cards
                     this.showPokerHandNotification(handResult, matchingPositions);
-                } else if (handResult.score > 0) {
-                    // Show notification for invalid hand due to level restriction
+                } else if (handResult.score > 0 && !this.isHandValid(handResult.name) && this.isHandValidForLevel1(handResult.name)) {
+                    // Only show notification for invalid hand if:
+                    // 1. We actually found a match that would be valid in level 1
+                    // 2. The last placed card is part of the matching cards
                     const matchingPositions = handResult.matchingIndices.map(idx => hand.positions[idx]);
-                    const invalidNotification = {
-                        name: `Level ${this.level}: ${handResult.name} not matched!`,
-                        score: 0
-                    };
-                    this.showPokerHandNotification(invalidNotification, matchingPositions);
+                    const lastPlacedPos = this.board.lastPlacedPosition;
+                    
+                    // Check if the last placed card is part of the matching cards
+                    const isLastPlacedCardPartOfHand = matchingPositions.some(pos => 
+                        pos.x === lastPlacedPos.x && pos.y === lastPlacedPos.y
+                    );
+                    
+                    if (isLastPlacedCardPartOfHand) {
+                        const invalidNotification = {
+                            name: `Level ${this.level}: ${handResult.name} not matched!`,
+                            score: 0
+                        };
+                        this.showPokerHandNotification(invalidNotification, matchingPositions);
+                    }
                 }
             });
 
@@ -962,6 +973,11 @@ class Game {
             'Four of a Kind': 8
         };
         return restrictionLevels[handType] || 9;
+    }
+
+    isHandValidForLevel1(handType) {
+        // In level 1, all poker hands are valid except "No Hand"
+        return handType !== "No Hand";
     }
 }
 

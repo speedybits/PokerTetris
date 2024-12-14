@@ -4,6 +4,7 @@ class Board {
         this.height = 10;
         this.grid = Array(this.height).fill().map(() => Array(this.width).fill(null));
         this.element = document.getElementById('game-board');
+        this.lastPlacedPosition = null;  // Track the position of the last placed card
         this.initializeBoard();
     }
 
@@ -53,6 +54,7 @@ class Board {
     placeCard(card, x, y) {
         if (this.isValidPosition(x, y)) {
             this.grid[y][x] = card;
+            this.lastPlacedPosition = {x, y};  // Update the last placed position
             return true;
         }
         return false;
@@ -133,7 +135,7 @@ class Board {
             setTimeout(() => {
                 // Process all moves after animations complete
                 allMoves.forEach(({ x, moves }) => {
-                    moves.forEach(move => {
+                    moves.forEach((move, index) => {
                         // Reset animation styles
                         move.element.style.transform = '';
                         move.element.classList.remove('falling');
@@ -145,6 +147,11 @@ class Board {
                         // Update grid state
                         this.grid[move.toY][x] = move.card;
                         this.grid[move.fromY][x] = null;
+
+                        // Update lastPlacedPosition for the last card that falls in this column
+                        if (index === moves.length - 1) {
+                            this.lastPlacedPosition = { x, y: move.toY };
+                        }
                     });
                 });
             }, 1000);
@@ -155,62 +162,59 @@ class Board {
 
     checkForPokerHands() {
         const hands = [];
+        const lastPlacedCard = this.lastPlacedPosition;  // We'll need to add this as a class property
         
-        // Check horizontal hands
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x <= this.width - 5; x++) {
-                const cards = [];
-                const positions = [];
-                let xCount = 0;  // Count X cards in this sequence
-                
-                // Collect 5 cards and their positions
-                for (let i = 0; i < 5; i++) {
-                    const card = this.grid[y][x + i];
-                    if (card === null) break;
-                    if (card.isX()) {
-                        xCount++;
-                        break;  // Stop collecting cards if we find an X card
-                    }
-                    cards.push(card);
-                    positions.push({x: x + i, y});
+        if (!lastPlacedCard) return hands;  // If no card was just placed, return empty array
+        
+        // Check horizontal hands that include the last placed card
+        const y = lastPlacedCard.y;
+        // Check all possible 5-card sequences that include the last placed card
+        for (let startX = Math.max(0, lastPlacedCard.x - 4); startX <= Math.min(this.width - 5, lastPlacedCard.x); startX++) {
+            const cards = [];
+            const positions = [];
+            let xCount = 0;
+            
+            // Collect 5 cards and their positions
+            for (let i = 0; i < 5; i++) {
+                const card = this.grid[y][startX + i];
+                if (card === null) break;
+                if (card.isX()) {
+                    xCount++;
+                    break;
                 }
-                
-                // Only add if we found exactly 5 cards and no X cards
-                if (cards.length === 5 && xCount === 0) {
-                    hands.push({
-                        cards,
-                        positions
-                    });
-                }
+                cards.push(card);
+                positions.push({x: startX + i, y});
+            }
+            
+            // Only add if we found exactly 5 cards and no X cards
+            if (cards.length === 5 && xCount === 0) {
+                hands.push({cards, positions});
             }
         }
 
-        // Check vertical hands
-        for (let x = 0; x < this.width; x++) {
-            for (let y = 0; y <= this.height - 5; y++) {
-                const cards = [];
-                const positions = [];
-                let xCount = 0;  // Count X cards in this sequence
-                
-                // Collect 5 cards and their positions
-                for (let i = 0; i < 5; i++) {
-                    const card = this.grid[y + i][x];
-                    if (card === null) break;
-                    if (card.isX()) {
-                        xCount++;
-                        break;  // Stop collecting cards if we find an X card
-                    }
-                    cards.push(card);
-                    positions.push({x, y: y + i});
+        // Check vertical hands that include the last placed card
+        const x = lastPlacedCard.x;
+        // Check all possible 5-card sequences that include the last placed card
+        for (let startY = Math.max(0, lastPlacedCard.y - 4); startY <= Math.min(this.height - 5, lastPlacedCard.y); startY++) {
+            const cards = [];
+            const positions = [];
+            let xCount = 0;
+            
+            // Collect 5 cards and their positions
+            for (let i = 0; i < 5; i++) {
+                const card = this.grid[startY + i][x];
+                if (card === null) break;
+                if (card.isX()) {
+                    xCount++;
+                    break;
                 }
-                
-                // Only add if we found exactly 5 cards and no X cards
-                if (cards.length === 5 && xCount === 0) {
-                    hands.push({
-                        cards,
-                        positions
-                    });
-                }
+                cards.push(card);
+                positions.push({x, y: startY + i});
+            }
+            
+            // Only add if we found exactly 5 cards and no X cards
+            if (cards.length === 5 && xCount === 0) {
+                hands.push({cards, positions});
             }
         }
 
