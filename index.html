@@ -568,7 +568,7 @@
             color: #1a0f2e;
             padding: 10px 20px;
             border-radius: 12px;
-            font-size: 24px;
+            font-size: clamp(14px, 4vw, 24px);  /* Responsive font size */
             font-weight: bold;
             box-shadow: 
                 0 0 10px #ffd700,
@@ -578,7 +578,12 @@
             border: 2px solid #fff;
             z-index: 1000;
             animation: notificationPop 0.5s ease-out forwards;
-            white-space: nowrap;
+            text-align: center;
+            max-width: 90%;  /* Prevent extending beyond screen width */
+            width: max-content;  /* Fit content width */
+            min-width: min-content;  /* Ensure text doesn't overflow */
+            white-space: normal;  /* Allow text wrapping */
+            word-wrap: break-word;  /* Break long words if necessary */
             pointer-events: none;
         }
 
