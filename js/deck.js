@@ -27,6 +27,11 @@ class Deck {
             this.cards.push(new Card('joker', 0));
         }
 
+        // Add 5 X cards
+        for (let i = 0; i < 5; i++) {
+            this.cards.push(new Card('x', 0));
+        }
+
         this.shuffle();
     }
 

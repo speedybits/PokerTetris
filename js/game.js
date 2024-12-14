@@ -16,6 +16,7 @@ class Game {
         this.minDropInterval = 200;  // Maximum speed (minimum interval) of 0.2 seconds
         this.dropInterval = this.baseDropInterval;
         this.lastDrop = 0;
+        this.xCardDropInterval = this.baseDropInterval / 4; // X cards fall 4x faster
 
         // Initialize help overlay
         const helpOverlay = document.getElementById('help-overlay');
@@ -303,8 +304,8 @@ class Game {
         // Left touch area
         touchLeft.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if (this.gameOver) return;
-            if (this.board.isValidPosition(this.currentX - 1, this.currentY)) {
+            if (this.gameOver || !this.currentCard) return;
+            if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX - 1, this.currentY)) {
                 this.currentX--;
             }
         }, { passive: false });
@@ -312,8 +313,8 @@ class Game {
         // Right touch area
         touchRight.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if (this.gameOver) return;
-            if (this.board.isValidPosition(this.currentX + 1, this.currentY)) {
+            if (this.gameOver || !this.currentCard) return;
+            if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX + 1, this.currentY)) {
                 this.currentX++;
             }
         }, { passive: false });
@@ -334,15 +335,15 @@ class Game {
 
         // Mouse controls for testing
         touchLeft.addEventListener('click', (e) => {
-            if (this.gameOver) return;
-            if (this.board.isValidPosition(this.currentX - 1, this.currentY)) {
+            if (this.gameOver || !this.currentCard) return;
+            if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX - 1, this.currentY)) {
                 this.currentX--;
             }
         });
 
         touchRight.addEventListener('click', (e) => {
-            if (this.gameOver) return;
-            if (this.board.isValidPosition(this.currentX + 1, this.currentY)) {
+            if (this.gameOver || !this.currentCard) return;
+            if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX + 1, this.currentY)) {
                 this.currentX++;
             }
         });
@@ -365,19 +366,11 @@ class Game {
     }
 
     dropToColumn(column) {
-        // Move card to target column if possible
-        while (this.currentX < column && this.board.isValidPosition(this.currentX + 1, this.currentY)) {
-            this.currentX++;
-        }
-        while (this.currentX > column && this.board.isValidPosition(this.currentX - 1, this.currentY)) {
-            this.currentX--;
-        }
+        if (this.isPaused || this.isLevelTransition || this.gameOver || !this.currentCard || this.currentCard.isX()) return;
         
-        // Drop card to lowest possible position
-        while (this.board.isValidPosition(this.currentX, this.currentY + 1)) {
-            this.currentY++;
+        if (column >= 0 && column < 5 && this.board.isValidPosition(column, this.currentY)) {
+            this.currentX = column;
         }
-        this.lockCard();
     }
 
     spawnCard() {
@@ -407,6 +400,9 @@ class Game {
         this.currentX = Math.floor(Math.random() * 5);
         this.currentY = 0;
 
+        // Set drop interval based on card type
+        this.dropInterval = this.currentCard.isX() ? this.xCardDropInterval : this.baseDropInterval;
+
         // Update next card display
         const nextCardElement = document.getElementById('next-card');
         nextCardElement.innerHTML = '';
@@ -416,13 +412,15 @@ class Game {
         console.log('Creating card:', {
             isRed: this.nextCard.isRed(),
             isJoker: this.nextCard.isJoker(),
+            isX: this.nextCard.isX(),
             suit: this.nextCard.suit,
             value: this.nextCard.value
         });
-        
+
         const classes = ['card'];
         if (this.nextCard.isRed()) classes.push('red');
         if (this.nextCard.isJoker()) classes.push('joker');
+        if (this.nextCard.isX()) classes.push('x');
         
         cardDiv.className = classes.join(' ');
         console.log('Card classes:', cardDiv.className);
@@ -787,12 +785,20 @@ class Game {
     }
 
     handleKeyPress(event) {
-        if (this.gameOver || this.isPaused) return;
-        
-        switch (event.code) {
-            case 'Space':
-                event.preventDefault(); // Prevent page scrolling
-                console.log('Quick Drop activated via spacebar');
+        if (this.isPaused || this.isLevelTransition || this.gameOver || !this.currentCard) return;
+
+        switch (event.key) {
+            case 'ArrowLeft':
+                if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX - 1, this.currentY)) {
+                    this.currentX--;
+                }
+                break;
+            case 'ArrowRight':
+                if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX + 1, this.currentY)) {
+                    this.currentX++;
+                }
+                break;
+            case ' ':
                 this.dropToBottom();
                 break;
         }

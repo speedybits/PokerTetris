@@ -38,9 +38,14 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Card text:
   - Value: positioned at top half of the card, font-size as large as possible while still fitting
   - Suit: positioned at bottom half of the card, font-size as large as possible while still fitting
-  - Colors: red for hearts/diamonds, black for clubs/spades, purple for jokers
-  - Values displayed as: A (1), 2-10, J (11), Q (12), K (13), JOKER
-  - Suits displayed as: ♥ ♦ ♣ ♠ 🃏
+  - Colors: red for hearts/diamonds, black for clubs/spades, purple for jokers, gray for X cards
+  - Values displayed as: A (1), 2-10, J (11), Q (12), K (13), JOKER, X
+  - Suits displayed as: ♥ ♦ ♣ ♠ 🃏 X
+- X cards:
+  - Single large gray X symbol centered in card
+  - No suit display
+  - Subtle pulsing animation while falling
+  - 50% faster falling animation than normal cards
 
 ## Visual Design
 - Dark theme with gradient background (#1a0f2e to #2c1654)
@@ -236,13 +241,20 @@ Final points are calculated by multiplying the base points by the level multipli
 - Spacebar: Alternative control for Quick Drop (for testing)
 
 ### Card System
-- Standard 52-card deck implementation
+- Standard 52-card deck implementation plus special cards
 - Automatic deck reshuffling when empty
 - Card properties:
-  - Suit (hearts, diamonds, clubs, spades)
-  - Value (1-13, with face cards)
-  - Color (red for hearts/diamonds)
+  - Suit (hearts, diamonds, clubs, spades, X)
+  - Value (1-13, with face cards, X)
+  - Color (red for hearts/diamonds, gray for X)
 - Card return system after matches
+- Special X Cards:
+  - 5 X cards mixed into the deck
+  - Drop straight down at 4x normal speed
+  - Cannot be moved horizontally by player
+  - Do not participate in poker hand matching
+  - Act as blockers/obstacles
+  - Return to deck after board clear at new level
 
 ### High Score System
 - Local storage persistence
@@ -328,8 +340,16 @@ The game ends when:
   - Explosion animations
 
 ## Deck Management
-- Base deck consists of 54 cards (standard 52-card deck plus 2 Jokers)
+- Base deck consists of:
+  - 54 cards (standard 52-card deck plus 2 Jokers)
+  - 5 X cards that act as blockers
 - Each level beyond Level 1 adds 2 additional Jokers to the deck
+- X cards characteristics:
+  - Display as a large gray "X"
+  - Cannot be moved horizontally
+  - Drop at 4x normal speed
+  - Do not participate in poker hand matching
+  - Return to deck after board clear
 - Jokers are "wild" cards that can represent any card needed to complete a poker hand
 - When using Jokers in a hand:
   - Multiple Jokers can be used in the same hand
@@ -338,7 +358,7 @@ The game ends when:
   - Example hands with multiple Jokers:
     - Three Jokers + K♠ + Q♠ = Royal Flush (Jokers become A♠, 10♠, J♠)
     - Two Jokers + K♠ + K♥ + K♣ = Five of a Kind (Jokers become K♦ and K♠)
-    - Two Jokers + A♠ + K♠ = Royal Flush (Jokers become Q♠ and J♠)
+    - Two Jokers + A♠ + K♠ = Royal Flush (Jokers become Q♠ and J��)
 - Cards are uniquely identified by:
   - Suit (hearts ♥, diamonds ♦, clubs ♣, spades ♠, joker ?)
   - Value (A=1, 2-10, J=11, Q=12, K=13, JOKER)

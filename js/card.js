@@ -8,6 +8,9 @@ class Card {
         if (this.suit === 'joker') {
             return `<span class="number">?</span>`;
         }
+        if (this.suit === 'x') {
+            return `<span class="number">X</span>`;
+        }
 
         const valueMap = {
             1: 'A',
@@ -32,5 +35,9 @@ class Card {
 
     isJoker() {
         return this.suit === 'joker';
+    }
+
+    isX() {
+        return this.suit === 'x';
     }
 } 

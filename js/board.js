@@ -161,17 +161,22 @@ class Board {
             for (let x = 0; x <= this.width - 5; x++) {
                 const cards = [];
                 const positions = [];
+                let xCount = 0;  // Count X cards in this sequence
                 
                 // Collect 5 cards and their positions
                 for (let i = 0; i < 5; i++) {
                     const card = this.grid[y][x + i];
                     if (card === null) break;
+                    if (card.isX()) {
+                        xCount++;
+                        break;  // Stop collecting cards if we find an X card
+                    }
                     cards.push(card);
                     positions.push({x: x + i, y});
                 }
                 
-                // Only add if we found exactly 5 cards
-                if (cards.length === 5) {
+                // Only add if we found exactly 5 cards and no X cards
+                if (cards.length === 5 && xCount === 0) {
                     hands.push({
                         cards,
                         positions
@@ -185,17 +190,22 @@ class Board {
             for (let y = 0; y <= this.height - 5; y++) {
                 const cards = [];
                 const positions = [];
+                let xCount = 0;  // Count X cards in this sequence
                 
                 // Collect 5 cards and their positions
                 for (let i = 0; i < 5; i++) {
                     const card = this.grid[y + i][x];
                     if (card === null) break;
+                    if (card.isX()) {
+                        xCount++;
+                        break;  // Stop collecting cards if we find an X card
+                    }
                     cards.push(card);
                     positions.push({x, y: y + i});
                 }
                 
-                // Only add if we found exactly 5 cards
-                if (cards.length === 5) {
+                // Only add if we found exactly 5 cards and no X cards
+                if (cards.length === 5 && xCount === 0) {
                     hands.push({
                         cards,
                         positions
