@@ -17,6 +17,12 @@ class Game {
         this.dropInterval = this.baseDropInterval;
         this.lastDrop = 0;
 
+        // Initialize help overlay
+        const helpOverlay = document.getElementById('help-overlay');
+        if (helpOverlay) {
+            helpOverlay.style.display = 'none';
+        }
+
         this.initializeScreens();
         this.initializeControls();
         this.updateGameInfo();
@@ -148,6 +154,9 @@ class Game {
         
         // Force a clean board display
         this.board.updateDisplay(this.board.grid);
+
+        // Update help screen to reflect new level restrictions
+        this.updateHelpScreen();
         
         // 3-6. Show popup, wait, then start game
         this.showLevelPopup(() => {
@@ -172,6 +181,85 @@ class Game {
         const touchRight = document.getElementById('touch-right');
         const gameBoard = document.getElementById('game-board');
         const quickDrop = document.getElementById('quick-drop');
+        const helpOverlay = document.getElementById('help-overlay');
+        const helpButton = document.getElementById('help-button');
+        const helpDoneButton = document.querySelector('.help-done-button');
+
+        // Help screen functionality
+        const showHelpScreen = () => {
+            console.log('Showing help screen');
+            if (this.gameOver) return;
+            
+            this.isPaused = true;
+            this.updateHelpScreen();
+            helpOverlay.style.display = 'flex';
+            // Scroll help content to top
+            const helpContent = document.querySelector('.help-content');
+            if (helpContent) {
+                helpContent.scrollTop = 0;
+            }
+        };
+
+        const hideHelpScreen = () => {
+            console.log('Hiding help screen');
+            helpOverlay.style.display = 'none';
+            this.isPaused = false;
+        };
+
+        // Add help button handlers
+        if (helpButton) {
+            console.log('Setting up Help button');
+            helpButton.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Help button clicked');
+                showHelpScreen();
+            };
+            
+            helpButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Help button touched');
+                showHelpScreen();
+            }, { passive: false });
+        } else {
+            console.error('Help button not found in DOM');
+        }
+
+        // Add help done button handler
+        if (helpDoneButton) {
+            console.log('Setting up Help Done button');
+            helpDoneButton.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Help Done button clicked');
+                hideHelpScreen();
+            };
+            
+            helpDoneButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Help Done button touched');
+                hideHelpScreen();
+            }, { passive: false });
+        } else {
+            console.error('Help Done button not found in DOM');
+        }
+
+        // Debug log to check elements
+        console.log('Help elements found:', {
+            helpButton: helpButton !== null,
+            helpOverlay: helpOverlay !== null,
+            helpDoneButton: helpDoneButton !== null
+        });
+
+        // Prevent default touch behavior
+        [gameContainer, touchLeft, touchRight, gameBoard].forEach(element => {
+            if (element) {
+                element.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+                element.addEventListener('touchend', (e) => e.preventDefault());
+            }
+        });
 
         console.log('Quick Drop button found:', quickDrop !== null);  // Debug if button exists
 
@@ -210,12 +298,6 @@ class Game {
             onclick: quickDrop.onclick,
             listeners: quickDrop.getEventListeners,
             style: quickDrop.style.display
-        });
-
-        // Prevent default touch behavior
-        [gameContainer, touchLeft, touchRight, gameBoard].forEach(element => {
-            element.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-            element.addEventListener('touchend', (e) => e.preventDefault());
         });
 
         // Left touch area
@@ -836,6 +918,44 @@ class Game {
                 if (callback) callback();
             }, 300);
         }, 4000);
+    }
+
+    updateHelpScreen() {
+        const handItems = document.querySelectorAll('.poker-hand-item');
+        handItems.forEach(item => {
+            const handType = item.getAttribute('data-hand');
+            const isValid = this.isHandValid(handType);
+            
+            item.classList.toggle('restricted', !isValid);
+            
+            // Add or update restriction level text
+            let restrictionSpan = item.querySelector('.restriction');
+            if (!isValid) {
+                if (!restrictionSpan) {
+                    restrictionSpan = document.createElement('span');
+                    restrictionSpan.className = 'restriction';
+                    item.appendChild(restrictionSpan);
+                }
+                // Find the level at which this hand becomes restricted
+                const restrictionLevel = this.getHandRestrictionLevel(handType);
+                restrictionSpan.textContent = `(Level ${restrictionLevel}+)`;
+            } else if (restrictionSpan) {
+                restrictionSpan.remove();
+            }
+        });
+    }
+
+    getHandRestrictionLevel(handType) {
+        const restrictionLevels = {
+            'One Pair': 2,
+            'Two Pair': 3,
+            'Three of a Kind': 4,
+            'Straight': 5,
+            'Flush': 6,
+            'Full House': 7,
+            'Four of a Kind': 8
+        };
+        return restrictionLevels[handType] || 9;
     }
 }
 

@@ -703,6 +703,237 @@
             transform: translate(-50%, -50%) scale(1.2);
             opacity: 0;
         }
+
+        /* Help Overlay */
+        #help-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 15, 46, 0.95);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .help-content {
+            background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
+            border: 2px solid #ffd700;
+            border-radius: 20px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 
+                0 0 10px #ffd700,
+                0 0 20px rgba(255,215,0,0.3);
+        }
+
+        .help-content h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .poker-hand-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .poker-hand-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(255,215,0,0.2);
+            color: white;
+            font-size: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .poker-hand-item.restricted {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: line-through;
+        }
+
+        .poker-hand-item .points {
+            color: #ffd700;
+        }
+
+        .poker-hand-item .restriction {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .poker-hand-item.restricted .points {
+            color: rgba(255, 215, 0, 0.5);
+        }
+
+        .poker-hand-item.restricted .poker-hand-example {
+            opacity: 0.5;
+        }
+
+        .poker-hand-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .poker-hand-example {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .poker-hand-example .card {
+            position: relative;
+            width: 30px;
+            height: 45px;
+            transform: none;
+            top: 0;
+            left: 0;
+            padding: 2px;
+            font-size: 12px;
+            border-radius: 4px;
+            margin: 0;
+        }
+
+        .poker-hand-example .card .number {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .poker-hand-example .card .suit {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        /* Update help content max width for better card display */
+        .help-content {
+            max-width: 600px;
+        }
+
+        /* Add button container for Quick Drop and Help */
+        .button-container {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            width: 100%;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        /* Base button styles */
+        #quick-drop,
+        #help-button {
+            height: 44px;
+            font-size: 16px;
+            border: 2px solid #fff;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            white-space: nowrap;
+        }
+
+        /* Quick Drop specific styles */
+        #quick-drop {
+            padding: 0 30px;
+            min-width: 150px;
+            box-shadow: 
+                0 0 8px #ff00de,
+                0 0 15px #ff00de;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Help button specific styles */
+        #help-button {
+            padding: 0 12px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff9900 100%);
+            box-shadow: 
+                0 0 8px #ffd700,
+                0 0 15px #ffd700;
+            font-size: 12px;
+            height: 32px;
+            min-width: unset;
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Media query for smaller screens */
+        @media screen and (max-width: 480px) {
+            #quick-drop {
+                font-size: 14px;
+                padding: 0 20px;
+                min-width: 120px;
+            }
+            
+            #help-button {
+                font-size: 11px;
+                padding: 0 10px;
+                height: 28px;
+            }
+        }
+
+        /* Help overlay Done button */
+        .help-done-button {
+            background: linear-gradient(135deg, #ffd700 0%, #ff9900 100%);
+            color: white;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 
+                0 0 8px #ffd700,
+                0 0 15px #ffd700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .help-done-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 0 20px #ffd700,
+                0 0 40px #ffd700;
+        }
+
+        .help-content {
+            touch-action: pan-y;  /* Enable vertical scrolling on touch devices */
+            -webkit-overflow-scrolling: touch;  /* Smooth scrolling on iOS */
+        }
     </style>
 </head>
 <body>
@@ -804,7 +1035,270 @@
             <div id="game-board"></div>
             <div id="touch-left" class="touch-area"></div>
             <div id="touch-right" class="touch-area"></div>
-            <button id="quick-drop">Quick Drop</button>
+            <div class="button-container">
+                <button id="quick-drop">Quick Drop</button>
+                <button id="help-button">Help</button>
+            </div>
+        </div>
+        <div id="help-overlay">
+            <div class="help-content">
+                <h2>Poker Hands Reference</h2>
+                <ul class="poker-hand-list">
+                    <li class="poker-hand-item" data-hand="Royal Flush">
+                        <div class="poker-hand-info">
+                            <span class="name">Royal Flush</span>
+                            <span class="points">2000 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card red">
+                                <span class="number">A</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">K</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">Q</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">J</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">10</span>
+                                <span class="suit">♥</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="poker-hand-item" data-hand="Straight Flush">
+                        <div class="poker-hand-info">
+                            <span class="name">Straight Flush</span>
+                            <span class="points">1000 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card">
+                                <span class="number">9</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">8</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">7</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">6</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">5</span>
+                                <span class="suit">♠</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="poker-hand-item" data-hand="Four of a Kind">
+                        <div class="poker-hand-info">
+                            <span class="name">Four of a Kind</span>
+                            <span class="points">500 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card">
+                                <span class="number">Q</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">Q</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">Q</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">Q</span>
+                                <span class="suit">♣</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">K</span>
+                                <span class="suit">♠</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="poker-hand-item" data-hand="Full House">
+                        <div class="poker-hand-info">
+                            <span class="name">Full House</span>
+                            <span class="points">300 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card red">
+                                <span class="number">10</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">10</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">10</span>
+                                <span class="suit">♣</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">J</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">J</span>
+                                <span class="suit">♥</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="poker-hand-item" data-hand="Flush">
+                        <div class="poker-hand-info">
+                            <span class="name">Flush</span>
+                            <span class="points">200 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card red">
+                                <span class="number">A</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">J</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">8</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">6</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">3</span>
+                                <span class="suit">♦</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="poker-hand-item" data-hand="Straight">
+                        <div class="poker-hand-info">
+                            <span class="name">Straight</span>
+                            <span class="points">150 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card">
+                                <span class="number">8</span>
+                                <span class="suit">♣</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">7</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">6</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">5</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">4</span>
+                                <span class="suit">♣</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="poker-hand-item" data-hand="Three of a Kind">
+                        <div class="poker-hand-info">
+                            <span class="name">Three of a Kind</span>
+                            <span class="points">100 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card">
+                                <span class="number">7</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">7</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">7</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">K</span>
+                                <span class="suit">♣</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">4</span>
+                                <span class="suit">♥</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="poker-hand-item" data-hand="Two Pair">
+                        <div class="poker-hand-info">
+                            <span class="name">Two Pair</span>
+                            <span class="points">50 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card">
+                                <span class="number">A</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">A</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">K</span>
+                                <span class="suit">♣</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">K</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">2</span>
+                                <span class="suit">♠</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="poker-hand-item" data-hand="One Pair">
+                        <div class="poker-hand-info">
+                            <span class="name">One Pair</span>
+                            <span class="points">25 pts</span>
+                        </div>
+                        <div class="poker-hand-example">
+                            <div class="card red">
+                                <span class="number">Q</span>
+                                <span class="suit">♥</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">Q</span>
+                                <span class="suit">♠</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">J</span>
+                                <span class="suit">♣</span>
+                            </div>
+                            <div class="card red">
+                                <span class="number">8</span>
+                                <span class="suit">♦</span>
+                            </div>
+                            <div class="card">
+                                <span class="number">3</span>
+                                <span class="suit">♠</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <button class="help-done-button">Done</button>
+            </div>
         </div>
     </div>
 
