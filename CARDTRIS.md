@@ -153,19 +153,22 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 
 ### Hand Formation and Effects
 - Valid poker hands can be formed in two ways:
-  - 5 cards in a horizontal row
-  - 5 cards in a vertical column
-- When a valid poker hand is formed by a card that settles on top of an existing card, or settles on the bottom of the board:
-  - The cards that make up the hand pulse with a golden glow (Eg. If the 5th card completes a pair, only the pair pulses with a golden glow)
-  - If the hand is valid for the current level:
-    - Game pauses until the animation finishes
-    - Notification appears showing hand type and points earned
-    - Cards "explode" with animation and are removed
-    - Cards above fall down to fill empty spaces
-  - If the hand is not valid for the current level:
-    - Cards pulse with golden glow briefly
-    - Notification appears for 3 seconds showing what hand was not matched (e.g., "Level 3: Two Pair not matched!")
-    - Cards remain on the board
+  - 5 consecutive cards in a horizontal row (not including X cards)
+  - 5 consecutive cards in a vertical column (not including X cards)
+- When a card settles into position (either by landing or falling due to gravity):
+  - If the card completes a 5-card sequence:
+    - The sequence is evaluated for poker hands
+    - If a valid poker hand is found for the current level:
+      - Game pauses until the animation finishes
+      - The cards that make up the hand pulse with a golden glow
+      - Notification appears showing hand type and points earned
+      - Cards "explode" with animation and are removed
+      - Cards above fall down to fill empty spaces
+    - If a poker hand is found but is not valid for the current level:
+      - Only if the newly placed/fallen card is part of the invalid hand:
+        - Cards pulse with golden glow briefly
+        - Notification appears for 3 seconds showing what hand was not matched (e.g., "Level 3: Two Pair not matched!")
+        - Cards remain on the board
 - Multiple hands can be evaluated simultaneously
 - After cards are removed:
   - Cards above fall down to fill empty spaces
@@ -358,7 +361,7 @@ The game ends when:
   - Example hands with multiple Jokers:
     - Three Jokers + K♠ + Q♠ = Royal Flush (Jokers become A♠, 10♠, J♠)
     - Two Jokers + K♠ + K♥ + K♣ = Five of a Kind (Jokers become K♦ and K♠)
-    - Two Jokers + A♠ + K♠ = Royal Flush (Jokers become Q♠ and J��)
+    - Two Jokers + A♠ + K♠ = Royal Flush (Jokers become Q♠ and J)
 - Cards are uniquely identified by:
   - Suit (hearts ♥, diamonds ♦, clubs ♣, spades ♠, joker ?)
   - Value (A=1, 2-10, J=11, Q=12, K=13, JOKER)
