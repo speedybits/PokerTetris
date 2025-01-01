@@ -959,6 +959,12 @@
             touch-action: pan-y;  /* Enable vertical scrolling on touch devices */
             -webkit-overflow-scrolling: touch;  /* Smooth scrolling on iOS */
         }
+
+        .indent {
+            margin-left: 20px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -977,15 +983,23 @@
     <!-- How To Play Screen -->
     <div id="how-to-play-screen" class="screen">
         <div class="how-to-play-content">
-            <!-- Page 1: Basic Controls -->
-            <div class="how-to-play-page active" data-page="1">
-                <h2>How To Play - Basic Controls</h2>
-                <p>Welcome to Cardtris! This card-based puzzle game combines Tetris mechanics with poker hands.</p>
-                <p>• Touch the left or right side of the screen to move cards</p>
-                <p>• Tap the Quick Drop button to instantly drop a card</p>
-                <p>• Create poker hands horizontally or vertically with 5 cards</p>
-                <p>• Watch the next card preview in the top-left corner</p>
-                <p>• Your level and score are shown in the top-right</p>
+            <!-- Page 1: Basic Rules -->
+            <div class="how-to-play-page" data-page="1">
+                <h2>Basic Rules</h2>
+                <p>• Cards fall one at a time from the top</p>
+                <p>• Move cards left or right as they fall</p>
+                <p>• Quick Drop button instantly drops cards</p>
+                <p>• Form poker hands to clear cards</p>
+                <p>• Game ends if cards reach the top</p>
+                <p>• Each level adds restrictions</p>
+                <p>• Points multiply with each level</p>
+                <h3>Special Cards</h3>
+                <p>• X Cards:</p>
+                <p class="indent">- 5 X cards in the deck</p>
+                <p class="indent">- Cannot be moved left/right</p>
+                <p class="indent">- Break up any poker hand sequence</p>
+                <p class="indent">- Act as obstacles on the board</p>
+                <p>• Jokers act as wild cards</p>
             </div>
 
             <!-- Page 2: Poker Hands -->
