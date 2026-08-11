@@ -24,12 +24,133 @@ class Game {
             helpOverlay.style.display = 'none';
         }
 
+        this.displayedScore = 0;
+        this._scoreTweening = false;
+
         this.initializeScreens();
         this.initializeControls();
+        this.setupAudioAndFx();
         this.updateGameInfo();
 
         // Add keyboard event listener
         document.addEventListener('keydown', this.handleKeyPress.bind(this));
+    }
+
+    /* Wire up the audio unlock (mobile autoplay), the mute toggle and haptics. */
+    setupAudioAndFx() {
+        // Any first user gesture resumes the AudioContext on iOS/iPadOS.
+        const unlock = () => audio.unlock();
+        ['pointerdown', 'touchstart', 'keydown'].forEach(ev =>
+            document.addEventListener(ev, unlock, { passive: true }));
+
+        const toggle = document.getElementById('sound-toggle');
+        if (toggle) {
+            const updateIcon = () => {
+                // 🔊 speaker vs 🔇 muted
+                toggle.innerHTML = audio.muted ? '🔇' : '🔊';
+                toggle.classList.toggle('muted', audio.muted);
+            };
+            updateIcon();
+            const onToggle = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                audio.unlock();
+                const nowMuted = audio.toggleMute();
+                updateIcon();
+                if (!nowMuted) audio.button();
+                this.haptic(15);
+            };
+            toggle.addEventListener('click', onToggle);
+            toggle.addEventListener('touchstart', onToggle, { passive: false });
+        }
+    }
+
+    /* Best-effort haptic feedback (Android/Chrome; silently ignored on iOS). */
+    haptic(pattern) {
+        if (navigator.vibrate) {
+            try { navigator.vibrate(pattern); } catch (e) { /* not supported */ }
+        }
+    }
+
+    /* Map a poker hand name to a 0..8 rank for scaling sound & effects. */
+    handRank(name) {
+        const ranks = {
+            'One Pair': 0,
+            'Two Pair': 1,
+            'Three of a Kind': 2,
+            'Straight': 3,
+            'Flush': 4,
+            'Full House': 5,
+            'Four of a Kind': 6,
+            'Straight Flush': 7,
+            'Royal Flush': 8
+        };
+        return ranks[name] !== undefined ? ranks[name] : 0;
+    }
+
+    /* Smoothly roll the on-screen score up to its true value. */
+    tweenScore() {
+        if (this._scoreTweening) return;
+        this._scoreTweening = true;
+        const step = () => {
+            const diff = this.score - this.displayedScore;
+            if (Math.abs(diff) < 0.5) {
+                this.displayedScore = this.score;
+                this.updateGameInfo();
+                this._scoreTweening = false;
+                return;
+            }
+            this.displayedScore += diff * 0.2;
+            this.updateGameInfo();
+            requestAnimationFrame(step);
+        };
+        step();
+    }
+
+    popScore() {
+        const el = document.getElementById('score-display');
+        if (!el) return;
+        el.classList.remove('score-pop');
+        // Force reflow so the animation can restart.
+        void el.offsetWidth;
+        el.classList.add('score-pop');
+    }
+
+    /*
+     * The big moment: fire coins, sparkles, floating text, screen shake and the
+     * matching win jingle. `rank` scales the whole spectacle; `positions` are the
+     * matched board cells (in grid coords).
+     */
+    celebrateWin(rank, positions, points) {
+        audio.win(rank);
+        this.popScore();
+
+        // Sparkle every matched card as it lights up.
+        if (effects) {
+            positions.forEach(pos => {
+                const c = effects.cellCenter(pos.x, pos.y);
+                if (c) effects.sparkle(c.x, c.y, 8 + rank, '#fff6b0');
+            });
+
+            // Floating "+points" over the board.
+            const board = document.getElementById('game-board');
+            if (board) {
+                const r = board.getBoundingClientRect();
+                effects.floatText(r.left + r.width / 2, r.top + r.height * 0.28,
+                    '+' + points, '#ffd700', 30 + rank * 3);
+            }
+
+            // Escalating shake, and full jackpot theatre for straight/royal flush.
+            effects.screenShake(4 + rank * 1.6, 0.35 + rank * 0.03);
+            if (rank >= 7) {
+                effects.confetti(120);
+                effects.coinShower(28);
+            } else if (rank >= 4) {
+                effects.confetti(50);
+            }
+        }
+
+        this.haptic(rank >= 6 ? [30, 40, 30, 40, 60] : rank >= 3 ? [20, 30, 40] : 25);
     }
 
     initializeScreens() {
@@ -38,11 +159,14 @@ class Game {
 
         // Start button handler
         document.querySelector('.start-button').addEventListener('click', () => {
+            audio.unlock();
+            audio.button();
             this.startGame();
         });
 
         // How To Play button handler
         document.querySelector('.how-to-play-button').addEventListener('click', () => {
+            audio.button();
             this.showScreen('how-to-play-screen');
             this.initializeHowToPlay();
         });
@@ -93,6 +217,7 @@ class Game {
         };
 
         prevButton.addEventListener('click', () => {
+            audio.button();
             if (currentPage > 1) {
                 currentPage--;
                 updateNavigation();
@@ -100,6 +225,7 @@ class Game {
         });
 
         nextButton.addEventListener('click', () => {
+            audio.button();
             if (currentPage < totalPages) {
                 currentPage++;
                 updateNavigation();
@@ -107,6 +233,7 @@ class Game {
         });
 
         doneButton.addEventListener('click', () => {
+            audio.button();
             this.showScreen('start-screen');
         });
 
@@ -128,6 +255,8 @@ class Game {
         this.dropInterval = this.baseDropInterval;
         this.lastDrop = 0;
         this.isPaused = false;
+        this.displayedScore = 0;
+        this._scoreTweening = false;
     }
 
     startGame() {
@@ -190,7 +319,8 @@ class Game {
         const showHelpScreen = () => {
             console.log('Showing help screen');
             if (this.gameOver) return;
-            
+
+            audio.button();
             this.isPaused = true;
             this.updateHelpScreen();
             helpOverlay.style.display = 'flex';
@@ -203,6 +333,7 @@ class Game {
 
         const hideHelpScreen = () => {
             console.log('Hiding help screen');
+            audio.button();
             helpOverlay.style.display = 'none';
             this.isPaused = false;
         };
@@ -307,6 +438,8 @@ class Game {
             if (this.gameOver || !this.currentCard) return;
             if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX - 1, this.currentY)) {
                 this.currentX--;
+                audio.move();
+                this.haptic(8);
             }
         }, { passive: false });
 
@@ -316,6 +449,8 @@ class Game {
             if (this.gameOver || !this.currentCard) return;
             if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX + 1, this.currentY)) {
                 this.currentX++;
+                audio.move();
+                this.haptic(8);
             }
         }, { passive: false });
 
@@ -338,6 +473,7 @@ class Game {
             if (this.gameOver || !this.currentCard) return;
             if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX - 1, this.currentY)) {
                 this.currentX--;
+                audio.move();
             }
         });
 
@@ -345,6 +481,7 @@ class Game {
             if (this.gameOver || !this.currentCard) return;
             if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX + 1, this.currentY)) {
                 this.currentX++;
+                audio.move();
             }
         });
 
@@ -369,7 +506,11 @@ class Game {
         if (this.isPaused || this.isLevelTransition || this.gameOver || !this.currentCard || this.currentCard.isX()) return;
         
         if (column >= 0 && column < 5 && this.board.isValidPosition(column, this.currentY)) {
-            this.currentX = column;
+            if (column !== this.currentX) {
+                this.currentX = column;
+                audio.move();
+                this.haptic(8);
+            }
         }
     }
 
@@ -441,12 +582,23 @@ class Game {
     endGame() {
         this.gameOver = true;
         document.getElementById('final-score').textContent = this.score;
-        
+
+        audio.gameOver();
+        this.haptic([80, 40, 80]);
+
         // Check if it's a high score
         if (highScores.isHighScore(this.score)) {
             document.querySelector('.high-score-message').style.display = 'block';
+            // Roll out the red carpet for a new record.
+            if (effects) {
+                effects.confetti(150);
+                effects.coinShower(34);
+            }
+            setTimeout(() => audio.win(6), 500);
+        } else {
+            document.querySelector('.high-score-message').style.display = 'none';
         }
-        
+
         this.showScreen('game-over-screen');
         document.getElementById('initials').focus();
     }
@@ -466,7 +618,11 @@ class Game {
 
         console.log('Locking card');
         this.board.placeCard(this.currentCard, this.currentX, this.currentY);
-        
+
+        // Satisfying "tap" of a card settling onto the felt.
+        audio.land();
+        this.haptic(12);
+
         // Quick initial match check
         setTimeout(() => {
             this.checkForMatches();
@@ -505,8 +661,9 @@ class Game {
             this.isPaused = true;
             let totalPoints = 0;
             let validHandFound = false;
+            let bestRank = 0;
             let cardsToRemove = new Set();
-            
+
             hands.forEach((hand, index) => {
                 console.log(`Evaluating hand ${index}:`, 
                     hand.cards.map(card => `${card.value}${card.suit[0]}`));
@@ -515,6 +672,7 @@ class Game {
                 
                 if (handResult.score > 0 && this.isHandValid(handResult.name)) {
                     validHandFound = true;
+                    bestRank = Math.max(bestRank, this.handRank(handResult.name));
                     totalPoints += Math.ceil(handResult.score * this.getPointMultiplier());
                     console.log(`Valid hand found! Points awarded:`, 
                         handResult.score, 
@@ -555,6 +713,8 @@ class Game {
                             score: 0
                         };
                         this.showPokerHandNotification(invalidNotification, matchingPositions);
+                        audio.invalid();
+                        this.haptic([15, 30, 15]);
                     }
                 }
             });
@@ -562,7 +722,7 @@ class Game {
             if (totalPoints > 0) {
                 this.score += totalPoints;
                 console.log('Updated total score:', this.score);
-                this.updateGameInfo();
+                this.tweenScore();
             }
 
             if (validHandFound) {
@@ -573,10 +733,23 @@ class Game {
                         return {x: parseInt(x), y: parseInt(y)};
                     });
 
+                // Kick off the full celebration (sound, sparkles, shake, text).
+                this.celebrateWin(bestRank, positionsToRemove, totalPoints);
+
                 setTimeout(() => {
                     console.log('Removing cards at positions:', positionsToRemove);
+
+                    // Splash a fountain of coins out of each clearing card.
+                    if (effects) {
+                        const coinsPer = 6 + bestRank * 2;
+                        positionsToRemove.forEach(pos => {
+                            const c = effects.cellCenter(pos.x, pos.y);
+                            if (c) effects.coinSplash(c.x, c.y, coinsPer, 1 + bestRank * 0.08);
+                        });
+                    }
+
                     this.board.removeCards(positionsToRemove);
-                    
+
                     setTimeout(() => {
                         this.isPaused = false;
                         this.checkForMatches();
@@ -802,11 +975,13 @@ class Game {
             case 'ArrowLeft':
                 if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX - 1, this.currentY)) {
                     this.currentX--;
+                    audio.move();
                 }
                 break;
             case 'ArrowRight':
                 if (!this.currentCard.isX() && this.board.isValidPosition(this.currentX + 1, this.currentY)) {
                     this.currentX++;
+                    audio.move();
                 }
                 break;
             case ' ':
@@ -823,6 +998,9 @@ class Game {
                 this.currentY++;
             }
             console.log(`Card dropped from row ${initialY} to row ${this.currentY}`);
+            if (this.currentY > initialY) {
+                audio.drop();
+            }
             this.lockCard();
         }
     }
@@ -889,9 +1067,10 @@ class Game {
 
     updateGameInfo() {
         const scoreDisplay = document.getElementById('score-display');
+        const shown = Math.round(this.displayedScore || 0);
         scoreDisplay.innerHTML = `
             Level ${this.level} (${52 - this.cardsUsed} cards left)<br>
-            Score: ${this.score}
+            Score: ${shown}
         `;
     }
 
@@ -923,6 +1102,15 @@ class Game {
         // 3. Show the popup
         popup.textContent = message;
         popup.classList.add('active');
+
+        // Celebrate the new level with a fanfare and a burst of confetti.
+        audio.levelUp();
+        this.haptic([20, 40, 20]);
+        if (effects) {
+            effects.confetti(70);
+            const r = popup.getBoundingClientRect();
+            effects.sparkle(r.left + r.width / 2, r.top + r.height / 2, 24, '#ffd700');
+        }
 
         // 4. Wait 4 seconds, then 5. Fade out popup
         setTimeout(() => {
@@ -983,5 +1171,7 @@ class Game {
 
 // Start the game when the page loads
 window.addEventListener('load', () => {
-    new Game();
+    effects = new EffectsManager();
+    // Exposed for debugging / tooling.
+    window.game = new Game();
 }); 

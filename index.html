@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cardtris">
+    <meta name="theme-color" content="#1a0f2e">
     <title>Cardtris</title>
     <style>
         * {
@@ -23,12 +28,35 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #1a0f2e;  /* Solid fallback */
-            background: -webkit-linear-gradient(135deg, #1a0f2e 0%, #2c1654 50%, #1a0f2e 100%);
-            background: -moz-linear-gradient(135deg, #1a0f2e 0%, #2c1654 50%, #1a0f2e 100%);
-            background: linear-gradient(135deg, #1a0f2e 0%, #2c1654 50%, #1a0f2e 100%);
+            background: #150a24;  /* Solid fallback */
+            /* Layered casino ambiance: warm gold spotlight up top over a deep
+               velvet purple table, finished with a soft vignette. */
+            background:
+                radial-gradient(120% 60% at 50% -10%, rgba(255,215,0,0.18) 0%, rgba(255,215,0,0) 55%),
+                radial-gradient(90% 90% at 50% 120%, rgba(153,0,255,0.22) 0%, rgba(153,0,255,0) 60%),
+                linear-gradient(135deg, #1a0f2e 0%, #2c1654 50%, #160a26 100%);
             font-family: 'Arial', sans-serif;
             color: white;
+        }
+
+        /* Faint drifting light rays behind everything for a "floor" feel. */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: -20%;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                repeating-conic-gradient(from 0deg at 50% 0%,
+                    rgba(255,215,0,0.05) 0deg 6deg,
+                    rgba(255,215,0,0) 6deg 18deg);
+            opacity: 0.5;
+            animation: rayDrift 40s linear infinite;
+        }
+
+        @keyframes rayDrift {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* Force portrait orientation */
@@ -61,6 +89,57 @@
             flex-direction: column;
             align-items: center;
             padding: 20px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            z-index: 1;
+        }
+
+        /* Full-screen particle canvas (coins, confetti, sparkles). */
+        #fx-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1500;
+        }
+
+        /* Sound toggle — floating chip in the bottom-left, the corner kept clear
+           on every screen (Quick Drop is centred, Help is bottom-right, and the
+           top corners hold the next-card / score panels during play). */
+        #sound-toggle {
+            position: fixed;
+            bottom: max(10px, env(safe-area-inset-bottom));
+            left: max(10px, env(safe-area-inset-left));
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #ffd700;
+            background: linear-gradient(135deg, rgba(30,15,46,0.9) 0%, rgba(45,27,78,0.9) 100%);
+            color: #ffd700;
+            font-size: 20px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255,215,0,0.6), inset 0 0 8px rgba(255,215,0,0.2);
+            z-index: 2500;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #sound-toggle:active {
+            transform: scale(0.9);
+        }
+
+        #sound-toggle.muted {
+            color: #7a6a4a;
+            border-color: #7a6a4a;
+            box-shadow: none;
         }
 
         .screen.active {
@@ -70,6 +149,98 @@
         /* Start Screen */
         #start-screen {
             justify-content: space-between;
+        }
+
+        .start-top {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .start-bottom {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Marquee title */
+        .game-title {
+            text-align: center;
+            margin: 10px 0 4px;
+            line-height: 1;
+            position: relative;
+        }
+
+        .game-title .title-main {
+            display: block;
+            font-family: 'Arial Black', Arial, sans-serif;
+            font-weight: 900;
+            font-size: clamp(44px, 15vw, 92px);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(180deg, #fff3b0 0%, #ffd700 35%, #ff9900 65%, #b8791a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 0 #7a4d00) drop-shadow(0 0 18px rgba(255,215,0,0.55));
+            position: relative;
+        }
+
+        /* Sheen that sweeps across the letters. */
+        .game-title .title-main::after {
+            content: 'CARDTRIS';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(100deg,
+                rgba(255,255,255,0) 40%,
+                rgba(255,255,255,0.85) 50%,
+                rgba(255,255,255,0) 60%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 250% 100%;
+            animation: titleSheen 3.5s ease-in-out infinite;
+        }
+
+        @keyframes titleSheen {
+            0%, 100% { background-position: 150% 0; }
+            50% { background-position: -50% 0; }
+        }
+
+        .game-title .title-sub {
+            display: block;
+            margin-top: 6px;
+            font-size: clamp(11px, 3.4vw, 16px);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #ff69d6;
+            text-shadow: 0 0 10px rgba(255,0,222,0.8);
+        }
+
+        /* Ring of chasing marquee bulbs around the title area. */
+        .marquee-lights {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+
+        .marquee-lights span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ffd700;
+            box-shadow: 0 0 8px #ffd700, 0 0 14px #ff9900;
+            animation: bulbChase 1.2s infinite;
+        }
+
+        .marquee-lights span:nth-child(odd) { animation-delay: 0.6s; background: #ff00de; box-shadow: 0 0 8px #ff00de, 0 0 14px #ff00de; }
+
+        @keyframes bulbChase {
+            0%, 100% { opacity: 0.25; transform: scale(0.85); }
+            50% { opacity: 1; transform: scale(1.15); }
         }
 
         .high-scores {
@@ -117,14 +288,45 @@
             font-size: 28px;
             border-radius: 40px;
             cursor: pointer;
-            box-shadow: 
+            box-shadow:
                 0 0 10px #ff00de,
                 0 0 20px #ff00de;
             text-transform: uppercase;
             font-weight: bold;
             letter-spacing: 2px;
-            transition: all 0.3s ease;
+            transition: transform 0.15s ease, box-shadow 0.3s ease;
             margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            animation: startPulse 2s ease-in-out infinite;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Glossy sweep across the CTA. */
+        .start-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -60%;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-20deg);
+            animation: buttonShine 3s ease-in-out infinite;
+        }
+
+        @keyframes startPulse {
+            0%, 100% { box-shadow: 0 0 10px #ff00de, 0 0 20px #ff00de; transform: scale(1); }
+            50% { box-shadow: 0 0 20px #ff00de, 0 0 45px #ff00de, 0 0 60px rgba(255,0,222,0.5); transform: scale(1.04); }
+        }
+
+        @keyframes buttonShine {
+            0% { left: -60%; }
+            40%, 100% { left: 140%; }
+        }
+
+        .start-button:active {
+            transform: scale(0.96);
         }
 
         .how-to-play-button {
@@ -265,15 +467,22 @@
             width: 90vw;
             height: calc(90vw * 2);  /* Maintain 1:2 ratio */
             max-height: 75vh;  /* Reduced to make room for quick drop button */
-            background: linear-gradient(135deg, #1e1e3f 0%, #2d1b4e 100%);
+            /* Green felt playfield inside a warm gold frame. */
+            background:
+                radial-gradient(120% 80% at 50% 0%, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0) 45%),
+                linear-gradient(160deg, #123a2a 0%, #0d2b20 55%, #0a2119 100%);
             border: 3px solid #ffd700;
-            box-shadow: 0 0 10px #ffd700, inset 0 0 30px rgba(0,0,0,0.5);
-            border-radius: 12px;
+            box-shadow:
+                0 0 12px rgba(255,215,0,0.6),
+                0 6px 24px rgba(0,0,0,0.6),
+                inset 0 0 40px rgba(0,0,0,0.55),
+                inset 0 0 0 2px rgba(255,215,0,0.15);
+            border-radius: 14px;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(10, 1fr);
             gap: 1px;
-            padding: 2px;
+            padding: 4px;
             margin: 0;
         }
 
@@ -313,12 +522,16 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
-            color: black;
+            background:
+                radial-gradient(120% 60% at 50% 0%, #ffffff 0%, #f4f4f8 60%, #e6e6ee 100%);
+            color: #1a1a2a;
             font-weight: bold;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.9);
+            border-radius: 9px;
+            border: 1px solid rgba(0,0,0,0.15);
+            box-shadow:
+                0 3px 7px rgba(0,0,0,0.35),
+                inset 0 2px 3px rgba(255,255,255,0.95),
+                inset 0 -3px 5px rgba(0,0,0,0.08);
             font-family: Arial, sans-serif;
             padding: 8% 4%;
             text-align: center;
@@ -490,6 +703,17 @@
             flex-direction: column;
             justify-content: center;
             line-height: 1.2;
+            transition: transform 0.12s ease;
+        }
+
+        #score-display.score-pop {
+            animation: scorePop 0.4s ease-out;
+        }
+
+        @keyframes scorePop {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.22); color: #fff; text-shadow: 0 0 14px #ffd700, 0 0 24px #ff9900; }
+            100% { transform: scale(1); }
         }
 
         /* Touch areas adjusted to match new board position */
@@ -512,50 +736,79 @@
         /* Game Over Screen */
         #game-over-screen {
             justify-content: center;
-            background-color: rgba(44, 62, 80, 0.95);
+            background: radial-gradient(circle at 50% 30%, rgba(45,27,78,0.96) 0%, rgba(21,10,36,0.97) 100%);
         }
 
         .game-over-content {
-            background-color: #34495e;
-            padding: 40px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(30,15,46,0.96) 0%, rgba(45,27,78,0.96) 100%);
+            padding: 40px 36px;
+            border-radius: 20px;
             text-align: center;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 18px rgba(255,215,0,0.5), inset 0 0 30px rgba(255,215,0,0.08);
+            max-width: 90%;
         }
 
         .game-over-content h2 {
-            font-size: 32px;
-            margin-bottom: 20px;
+            font-size: 34px;
+            margin-bottom: 16px;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 14px rgba(255,215,0,0.6);
         }
 
         .final-score {
-            font-size: 48px;
-            margin-bottom: 30px;
+            font-size: 46px;
+            margin-bottom: 26px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 0 12px rgba(255,215,0,0.5);
+        }
+
+        .final-score span {
+            color: #ffd700;
         }
 
         .initials-input {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 18px;
         }
 
         .initials-input input {
-            width: 120px;
-            height: 40px;
-            font-size: 24px;
+            width: 140px;
+            height: 52px;
+            font-size: 28px;
+            letter-spacing: 6px;
+            font-weight: bold;
             text-align: center;
             text-transform: uppercase;
-            background-color: #2c3e50;
-            border: 2px solid #95a5a6;
-            color: white;
-            border-radius: 5px;
+            background-color: rgba(26,15,46,0.9);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            border-radius: 10px;
+            box-shadow: inset 0 0 12px rgba(255,215,0,0.15);
+            outline: none;
         }
 
         .high-score-message {
-            font-size: 24px;
-            color: #f1c40f;
+            font-size: 26px;
+            color: #ffd700;
             margin-top: 20px;
             display: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 0 0 16px rgba(255,215,0,0.8);
+            animation: winnerFlash 0.9s ease-in-out infinite;
+        }
+
+        @keyframes winnerFlash {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 16px rgba(255,215,0,0.8); }
+            50% { transform: scale(1.08); text-shadow: 0 0 26px rgba(255,215,0,1), 0 0 40px rgba(255,153,0,0.7); }
         }
 
         /* Poker notification - positioned at top of game board */
@@ -701,22 +954,33 @@
             transform: translate(-50%, -50%) scale(0);
             background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
             color: white;
-            padding: 30px 60px;
+            padding: 30px 50px;
             border-radius: 20px;
-            font-size: 36px;
+            font-size: clamp(22px, 6vw, 36px);
             font-weight: bold;
             text-align: center;
             z-index: 1000;
             opacity: 0;
-            border: 3px solid #fff;
-            box-shadow: 
+            border: 3px solid #ffd700;
+            max-width: 88vw;
+            box-shadow:
                 0 0 20px #ff00de,
                 0 0 40px #ff00de,
-                0 0 60px #9900ff;
-            text-shadow: 
+                0 0 70px #9900ff,
+                inset 0 0 20px rgba(255,215,0,0.25);
+            text-shadow:
                 0 0 10px rgba(255, 255, 255, 0.8),
                 0 0 20px rgba(255, 255, 255, 0.5);
             transition: all 0.3s ease-out;
+        }
+
+        #level-popup.active {
+            animation: levelGlow 1.4s ease-in-out infinite;
+        }
+
+        @keyframes levelGlow {
+            0%, 100% { box-shadow: 0 0 20px #ff00de, 0 0 40px #ff00de, 0 0 70px #9900ff, inset 0 0 20px rgba(255,215,0,0.25); }
+            50% { box-shadow: 0 0 30px #ff00de, 0 0 60px #ff00de, 0 0 100px #9900ff, inset 0 0 30px rgba(255,215,0,0.45); }
         }
 
         #level-popup.active {
@@ -970,14 +1234,26 @@
 <body>
     <!-- Start Screen -->
     <div id="start-screen" class="screen active">
-        <div class="high-scores">
-            <h2>High Scores</h2>
-            <div class="score-list">
-                <!-- High scores will be populated by JavaScript -->
+        <div class="start-top">
+            <div class="game-title">
+                <span class="title-main">CARDTRIS</span>
+                <span class="title-sub">Poker &bull; Jackpots &bull; Fortune</span>
+            </div>
+            <div class="marquee-lights">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <div class="high-scores">
+                <h2>&#127942; High Scores</h2>
+                <div class="score-list">
+                    <!-- High scores will be populated by JavaScript -->
+                </div>
             </div>
         </div>
-        <button class="start-button">Start Game</button>
-        <button class="how-to-play-button">How To Play</button>
+        <div class="start-bottom">
+            <button class="start-button">Start Game</button>
+            <button class="how-to-play-button">How To Play</button>
+        </div>
     </div>
 
     <!-- How To Play Screen -->
@@ -1354,10 +1630,18 @@
         </div>
     </div>
 
+    <!-- Particle overlay (coins, confetti, sparkles) -->
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- Sound toggle -->
+    <button id="sound-toggle" aria-label="Toggle sound">&#128266;</button>
+
     <script src="js/card.js"></script>
     <script src="js/deck.js"></script>
     <script src="js/board.js"></script>
     <script src="js/highscores.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/effects.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html> 
