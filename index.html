@@ -471,11 +471,14 @@
         }
 
         #game-board {
-            width: 90vw;
-            height: calc(90vw * 2);  /* Maintain 1:2 ratio */
-            max-height: 75vh;  /* Reduced to make room for quick drop button */
-            max-height: 75dvh; /* Shrink with the live viewport when the browser
-                                  toolbar is shown so the buttons stay visible. */
+            /* Strict 1:2 board so every cell stays square and each card keeps
+               its tall card shape. BOTH sides are driven from the same pair of
+               constraints — available width and live viewport height — so the
+               ratio never distorts when the height is capped for the toolbar. */
+            width: min(90vw, 37.5vh);
+            width: min(90vw, 37.5dvh);
+            height: min(180vw, 75vh);
+            height: min(180vw, 75dvh);
             /* Green felt playfield inside a warm gold frame. */
             background:
                 radial-gradient(120% 80% at 50% 0%, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0) 45%),
@@ -495,15 +498,8 @@
             margin: 0;
         }
 
-        /* If height would exceed max-height, recalculate width to maintain ratio */
-        @media (min-aspect-ratio: 5/10) {
-            #game-board {
-                width: calc(80vh * 0.5);  /* Half of max-height to maintain ratio */
-                height: 80vh;
-                width: calc(78dvh * 0.5);
-                height: 78dvh;
-            }
-        }
+        /* Ratio is now maintained by the min() sizing on #game-board itself, so
+           no per-aspect-ratio width recalculation is needed here. */
 
         .card-cell {
             position: relative;
@@ -915,10 +911,12 @@
         /* Media query for mobile devices */
         @media screen and (max-width: 480px) {
             #game-board {
-                width: 92vw;
-                height: calc(92vw * 2);
-                max-height: 70vh; /* Even smaller to ensure button visibility */
-                max-height: 68dvh; /* Live-viewport aware on mobile browsers. */
+                /* Slightly more width, a bit shorter, to guarantee room for the
+                   Quick Drop row — still a perfect 1:2 (square cells). */
+                width: min(92vw, 34vh);
+                width: min(92vw, 34dvh);
+                height: min(184vw, 68vh);
+                height: min(184vw, 68dvh);
             }
 
             .card .number {
@@ -942,11 +940,12 @@
             }
         }
 
-        /* For very tall screens, ensure the board doesn't get too tall */
+        /* For very tall screens, cap the board so it doesn't get too tall while
+           preserving the 1:2 ratio (square cells). */
         @media (min-height: 1000px) {
             #game-board {
-                max-height: 800px; /* Reduced from 900px to ensure button visibility */
-                width: calc(800px * 0.5);  /* Maintain ratio */
+                width: min(90vw, 400px);
+                height: min(180vw, 800px);
             }
         }
 
