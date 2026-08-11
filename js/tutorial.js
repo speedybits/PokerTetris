@@ -66,11 +66,12 @@ class Tutorial {
         this.dropBtn.addEventListener('click', drop);
         this.dropBtn.addEventListener('touchstart', drop, { passive: false });
 
-        // Tap a column to move the falling card there — same as the real game.
-        this.boardEl.addEventListener('click', (e) => this._moveToX(e.clientX));
+        // Tap the left / right side of the board to nudge the falling card one
+        // column that way — same idea as the real game's side taps.
+        this.boardEl.addEventListener('click', (e) => this._tapMove(e.clientX));
         this.boardEl.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if (e.touches && e.touches[0]) this._moveToX(e.touches[0].clientX);
+            if (e.touches && e.touches[0]) this._tapMove(e.touches[0].clientX);
         }, { passive: false });
     }
 
@@ -116,7 +117,10 @@ class Tutorial {
         this.hintEl.classList.remove('shake');
         this.progressEl.textContent = `${this.step + 1} / ${this.steps.length}`;
         this.prevBtn.style.visibility = this.step === 0 ? 'hidden' : 'visible';
-        this.controlsEl.style.visibility = s.interactive ? 'visible' : 'hidden';
+        // Quick Drop is shown on steps that ask for it; the pure movement step
+        // hides it so the player focuses on steering.
+        this.controlsEl.style.visibility =
+            (s.interactive && s.showDrop !== false) ? 'visible' : 'hidden';
 
         this._setupStep(s);
         this._updateNext(s);
@@ -152,8 +156,11 @@ class Tutorial {
             // Spawn the falling card.
             this.cur = { card: new Card(s.spawn.suit, s.spawn.value), x: s.spawn.startX, y: 0 };
             this._drawBoard();
-            // Let it settle into view before it starts descending.
-            setTimeout(() => { if (this.cur && !this.locked) this._startFall(s.fast ? 380 : 1000); }, 550);
+            // Movement / X steps descend on their own; pre-positioned hand steps
+            // hover at the top and wait for the player to press Quick Drop.
+            if (s.autoFall) {
+                setTimeout(() => { if (this.cur && !this.locked) this._startFall(s.fast ? 380 : 1000); }, 550);
+            }
         } else {
             this._drawBoard();
             if (s.illustrate) {
@@ -215,7 +222,7 @@ class Tutorial {
 
     /* ---- controls (mirror the real game) ---------------------------- */
 
-    _moveToX(clientX) {
+    _tapMove(clientX) {
         if (!this.cur || this.locked) return;
         const rect = this.boardEl.getBoundingClientRect();
         const col = Math.floor(((clientX - rect.left) / rect.width) * this.cols);
@@ -227,8 +234,13 @@ class Tutorial {
             this._nudge(this.stepDef.blockHint || 'X cards can’t be moved!');
             return;
         }
-        if (col !== this.cur.x && this.grid[this.cur.y][col] === null) {
-            this.cur.x = col;
+
+        // Step one column toward the side that was tapped (like the game).
+        const dir = col > this.cur.x ? 1 : col < this.cur.x ? -1 : 0;
+        if (dir === 0) return;
+        const nx = this.cur.x + dir;
+        if (nx >= 0 && nx < this.cols && this.grid[this.cur.y][nx] === null) {
+            this.cur.x = nx;
             audio.move();
             this.game.haptic(8);
             this._drawBoard();
@@ -276,6 +288,9 @@ class Tutorial {
         const s = this.stepDef;
         if (s.kind === 'block') {
             this._blockLanded(s);
+        } else if (s.kind === 'move') {
+            if (landedX === s.targetColumn) this._moveSuccess(s);
+            else this._fail(s);
         } else if (landedX === s.targetColumn) {
             this._celebrate(s);
         } else {
@@ -294,8 +309,24 @@ class Tutorial {
         this.locked = true;
         audio.invalid();
         this.game.haptic([15, 30, 15]);
-        this._nudge(`Not quite — that didn’t complete the ${s.axis}. Let’s try again!`);
+        const what = s.kind === 'move'
+            ? 'land the card in the glowing column'
+            : `complete the ${s.axis}`;
+        this._nudge(`Not quite — try to ${what}. Let’s go again!`);
         setTimeout(() => this._setupStep(s), 1100);
+    }
+
+    _moveSuccess(s) {
+        this.locked = true;
+        audio.land();
+        this.game.haptic(15);
+        if (effects) {
+            const r = this._cell(s.targetColumn, this.rows - 1).getBoundingClientRect();
+            effects.sparkle(r.left + r.width / 2, r.top + r.height / 2, 12, '#fff6b0');
+        }
+        this.solved = true;
+        this.hintEl.innerHTML = '✅ Nice steering! Tap <b>Next</b> to learn how to score.';
+        this._updateNext(s);
     }
 
     _blockLanded(s) {
@@ -361,33 +392,35 @@ class Tutorial {
     _buildSteps() {
         return [
             {
-                title: 'Welcome to Cardtris',
-                text: 'Cards fall from the top. Line up <b>5 cards</b> that make a poker hand — in a <b>row</b> or a <b>column</b> — to clear them and score.',
-                hint: 'Controls: <b>tap a column</b> to move the card, and <b>Quick Drop</b> to slam it down. Tap <b>Next</b> to try.',
-                interactive: false,
-                illustrate: true,
-                cards: [
-                    { x: 0, y: 4, suit: 'hearts', value: 1 },
-                    { x: 1, y: 4, suit: 'hearts', value: 13 },
-                    { x: 2, y: 4, suit: 'hearts', value: 12 },
-                    { x: 3, y: 4, suit: 'hearts', value: 11 },
-                    { x: 4, y: 4, suit: 'hearts', value: 10 }
-                ]
+                // Pure controls practice: steer a falling card left/right.
+                title: 'Steer the Falling Card',
+                text: 'Cards fall from the top. <b>Tap the left or right side</b> of the board to slide the falling card across.',
+                hint: '👆 Tap left / right to guide the card into the <b>glowing column</b> before it lands.',
+                interactive: true,
+                kind: 'move',
+                movable: true,
+                autoFall: true,
+                showDrop: false,
+                spawn: { suit: 'diamonds', value: 7, startX: 0 },
+                targetColumn: 3
             },
             {
+                // Pre-positioned — the player just presses Quick Drop.
                 title: 'Complete a Row',
-                text: 'These four cards need one more to make a <b>Straight</b> (4-5-6-7-8).',
-                hint: '👆 Move the <b>8</b> to the glowing column, then <b>Quick Drop</b> to finish the row.',
+                text: 'Four cards sit in a row, needing one more for a <b>Straight</b> (4-5-6-7-8). The <b>8</b> is already lined up above the empty spot.',
+                hint: '👆 Press <b>Quick Drop</b> to drop the 8 and finish the row.',
                 interactive: true,
                 kind: 'hand',
                 axis: 'row',
+                autoFall: false,
+                showDrop: true,
                 cards: [
                     { x: 0, y: 4, suit: 'clubs', value: 4 },
                     { x: 1, y: 4, suit: 'diamonds', value: 5 },
                     { x: 2, y: 4, suit: 'spades', value: 6 },
                     { x: 3, y: 4, suit: 'hearts', value: 7 }
                 ],
-                spawn: { suit: 'clubs', value: 8, startX: 1 },
+                spawn: { suit: 'clubs', value: 8, startX: 4 },
                 targetColumn: 4,
                 winName: 'Straight',
                 winRank: 3,
@@ -395,18 +428,20 @@ class Tutorial {
             },
             {
                 title: 'Complete a Column',
-                text: 'This column already has four <b>spades</b>. One more spade makes a <b>Flush</b>.',
-                hint: '👆 Move the <b>5♠</b> over the spades, then <b>Quick Drop</b> to finish the column.',
+                text: 'This column has four <b>spades</b>; one more makes a <b>Flush</b>. The <b>5♠</b> is lined up right on top.',
+                hint: '👆 Press <b>Quick Drop</b> to drop the 5♠ and finish the column.',
                 interactive: true,
                 kind: 'hand',
                 axis: 'column',
+                autoFall: false,
+                showDrop: true,
                 cards: [
                     { x: 2, y: 1, suit: 'spades', value: 3 },
                     { x: 2, y: 2, suit: 'spades', value: 7 },
                     { x: 2, y: 3, suit: 'spades', value: 9 },
                     { x: 2, y: 4, suit: 'spades', value: 13 }
                 ],
-                spawn: { suit: 'spades', value: 5, startX: 0 },
+                spawn: { suit: 'spades', value: 5, startX: 2 },
                 targetColumn: 2,
                 winName: 'Flush',
                 winRank: 4,
@@ -414,18 +449,20 @@ class Tutorial {
             },
             {
                 title: 'Jokers Are Wild',
-                text: 'A <b>?</b> Joker can become <b>any</b> card. These four hearts are one short of a <b>Royal Flush</b> — the Joker can be the Ace!',
-                hint: '👆 Move the <b>?</b> Joker to the glowing column and <b>Quick Drop</b> to win big.',
+                text: 'A <b>?</b> Joker can become <b>any</b> card. These four hearts are one short of a <b>Royal Flush</b> — the Joker becomes the Ace! It’s lined up on top.',
+                hint: '👆 Press <b>Quick Drop</b> to drop the Joker and win big.',
                 interactive: true,
                 kind: 'hand',
                 axis: 'row',
+                autoFall: false,
+                showDrop: true,
                 cards: [
                     { x: 0, y: 4, suit: 'hearts', value: 10 },
                     { x: 1, y: 4, suit: 'hearts', value: 11 },
                     { x: 2, y: 4, suit: 'hearts', value: 12 },
                     { x: 3, y: 4, suit: 'hearts', value: 13 }
                 ],
-                spawn: { suit: 'joker', value: 0, startX: 1 },
+                spawn: { suit: 'joker', value: 0, startX: 4 },
                 targetColumn: 4,
                 winName: 'Royal Flush',
                 winRank: 8,
@@ -433,19 +470,21 @@ class Tutorial {
             },
             {
                 title: 'X Blocks the Board',
-                text: 'An <b>X</b> card can’t be moved left or right, falls fast, and never forms a hand — it just gets in the way.',
-                hint: 'Try tapping a column (it won’t move), then <b>Quick Drop</b> the X.',
+                text: 'An <b>X</b> card can’t be moved left or right and falls fast — it never forms a hand, it just gets in the way.',
+                hint: 'Try tapping to move it (it won’t budge), then press <b>Quick Drop</b>.',
                 interactive: true,
                 kind: 'block',
                 movable: false,
+                autoFall: true,
                 fast: true,
+                showDrop: true,
                 blockHint: '🚫 X cards can’t be moved — only dropped!',
                 successHint: 'See? The <b>X</b> just sits there as a blocker. Plan around it!',
                 spawn: { suit: 'x', value: 0, startX: 2 }
             },
             {
                 title: 'You’re Ready!',
-                text: 'Clear hands in rows and columns, use Jokers as wild cards, dodge the X blockers, climb the levels and chase the jackpot!',
+                text: 'Steer cards with left/right taps, drop them to build hands in rows and columns, use Jokers as wild cards and dodge the X blockers. Climb the levels and chase the jackpot!',
                 hint: 'Tap <b>Play</b> to start your game.',
                 interactive: false,
                 cards: [
