@@ -26,7 +26,9 @@
 
         html, body {
             width: 100%;
-            height: 100%;
+            height: 100vh;
+            height: 100dvh;  /* Track the live viewport so the browser's
+                                dynamic toolbar never overlaps the layout. */
             overflow: hidden;
             background: #150a24;  /* Solid fallback */
             /* Layered casino ambiance: warm gold spotlight up top over a deep
@@ -84,7 +86,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh;
+            height: 100dvh;
             display: none;
             flex-direction: column;
             align-items: center;
@@ -369,8 +372,9 @@
             width: 90%;
             max-width: 600px;
             max-height: 80vh;
+            max-height: 80dvh;
             overflow-y: auto;
-            box-shadow: 
+            box-shadow:
                 0 0 10px #ffd700,
                 0 0 20px rgba(255,215,0,0.3);
             touch-action: pan-y;
@@ -453,13 +457,16 @@
 
         #game-container {
             width: 100%;
-            height: 100%;
+            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
             padding-top: calc(6vh + 5px);
-            padding-bottom: 10px;
+            /* Keep the Quick Drop / Help row clear of the phone's home
+               indicator and the browser's bottom toolbar. */
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
             gap: 10px;
         }
 
@@ -467,6 +474,8 @@
             width: 90vw;
             height: calc(90vw * 2);  /* Maintain 1:2 ratio */
             max-height: 75vh;  /* Reduced to make room for quick drop button */
+            max-height: 75dvh; /* Shrink with the live viewport when the browser
+                                  toolbar is shown so the buttons stay visible. */
             /* Green felt playfield inside a warm gold frame. */
             background:
                 radial-gradient(120% 80% at 50% 0%, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0) 45%),
@@ -491,6 +500,8 @@
             #game-board {
                 width: calc(80vh * 0.5);  /* Half of max-height to maintain ratio */
                 height: 80vh;
+                width: calc(78dvh * 0.5);
+                height: 78dvh;
             }
         }
 
@@ -907,6 +918,7 @@
                 width: 92vw;
                 height: calc(92vw * 2);
                 max-height: 70vh; /* Even smaller to ensure button visibility */
+                max-height: 68dvh; /* Live-viewport aware on mobile browsers. */
             }
 
             .card .number {
@@ -1017,8 +1029,9 @@
             width: 90%;
             max-width: 500px;
             max-height: 90vh;
+            max-height: 90dvh;
             overflow-y: auto;
-            box-shadow: 
+            box-shadow:
                 0 0 10px #ffd700,
                 0 0 20px rgba(255,215,0,0.3);
         }
