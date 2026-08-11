@@ -368,4 +368,47 @@ The game ends when:
 - When cards are matched and removed from the board:
   - They are returned to the deck
   - The deck is reshuffled when empty
+
+## Casino Presentation & Feedback
+
+The game ships with a self-contained "casino-quality" presentation layer tuned
+for iPhone and iPad. It requires no external asset files — all sound is
+synthesized live and all particles are drawn on a canvas — so the game stays a
+single deployable page.
+
+### Sound Engine (`js/audio.js`)
+- Web Audio API synthesizes every sound at runtime (no audio files):
+  - Card move (chip tick), card land (felt tap), quick-drop whoosh
+  - Coin cascade / metallic "ting" clusters for payouts
+  - Win jingles that escalate with hand rank (pair → royal flush), with a
+    triumphant sustained chord + gong for straight/royal flushes
+  - Level-up fanfare, game-over motif, button clicks, invalid-hand buzz
+  - A warm ambient casino "room" bed with occasional distant coin sparkles
+- iOS/iPadOS autoplay policy is respected: the AudioContext is unlocked on the
+  first user gesture.
+- A floating sound toggle (bottom-left) mutes/unmutes; the choice is persisted
+  in `localStorage` (`cardtrisMuted`).
+
+### Particle & Juice Engine (`js/effects.js`)
+- A single full-screen `<canvas id="fx-canvas">` (pointer-events: none) renders:
+  - **Splashing coins** — gold coins burst from each cleared card, spin, fall
+    under gravity and bounce along the bottom of the screen
+  - **Confetti** bursts on level-ups and big hands
+  - **Sparkle** stars on each matched card
+  - **Floating score text** ("+points") that pops and drifts upward
+  - **Coin showers** for jackpots (straight flush / royal flush / new records)
+- **Screen shake** scales with hand rank for extra impact.
+- **Score count-up**: the on-screen score smoothly tweens up to its new value.
+
+### Haptics
+- Best-effort `navigator.vibrate()` feedback on moves, landings, wins and
+  game-over (supported on Android/Chrome; silently ignored on iOS Safari).
+
+### Visual Styling
+- Neon marquee title with animated sheen and chasing bulbs on the start screen.
+- Green-felt playfield inside a glowing gold frame.
+- Premium card faces, casino-themed game-over screen, and drifting light rays
+  in the background.
+- iPhone/iPad polish: `viewport-fit=cover`, `env(safe-area-inset-*)` padding,
+  and Apple web-app meta tags for a fullscreen, native feel.
 - Duplicate cards are impossible by design (except for Jokers, which increase with level)
