@@ -29,11 +29,11 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Background: gradient from #1a0f2e to #2c1654
 
 ### Card Layout
-- Each card must fit inside a cell
-- Aspect ratio: 1:2 (width:height)
-- Card width: 96% of cell width
-- Card height: card width * 2
-- Card position: centered in cell (transform: translate(-50%, -50%))
+- Each card must fit inside a (square) cell
+- Aspect ratio: real playing-card proportions, 2.5 x 3.5 in ≈ 5:7 (width:height)
+- Card height: 96% of cell height
+- Card width: ~69% of cell width (so height:width ≈ 7:5)
+- Card position: centered horizontally in cell (left: 50%; transform: translateX(-50%))
 - Card padding: 8% vertical, 4% horizontal
 - Card text:
   - Value: positioned at top half of the card, font-size as large as possible while still fitting
