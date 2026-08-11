@@ -164,11 +164,10 @@ class Game {
             this.startGame();
         });
 
-        // How To Play button handler
+        // Tutorial button handler — opens the interactive tutorial.
         document.querySelector('.how-to-play-button').addEventListener('click', () => {
             audio.button();
-            this.showScreen('how-to-play-screen');
-            this.initializeHowToPlay();
+            if (tutorial) tutorial.open();
         });
 
         // Initials input handler
@@ -181,64 +180,6 @@ class Game {
                 this.submitScore(e.target.value);
             }
         });
-    }
-
-    initializeHowToPlay() {
-        let currentPage = 1;
-        const totalPages = 4;
-        const prevButton = document.getElementById('prev-page');
-        const nextButton = document.getElementById('next-page');
-        const doneButton = document.querySelector('.done-button');
-        const pageIndicator = document.querySelector('.page-indicator');
-        const contentContainer = document.querySelector('.how-to-play-content');
-
-        const updateNavigation = () => {
-            prevButton.disabled = currentPage === 1;
-            
-            // On the last page, hide Next and show Done
-            if (currentPage === totalPages) {
-                nextButton.style.display = 'none';
-                doneButton.style.display = 'inline-block';
-            } else {
-                nextButton.style.display = 'inline-block';
-                doneButton.style.display = 'none';
-            }
-            
-            pageIndicator.textContent = `Page ${currentPage}/${totalPages}`;
-
-            // Update visible page
-            document.querySelectorAll('.how-to-play-page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.querySelector(`.how-to-play-page[data-page="${currentPage}"]`).classList.add('active');
-            
-            // Scroll to top of content
-            contentContainer.scrollTop = 0;
-        };
-
-        prevButton.addEventListener('click', () => {
-            audio.button();
-            if (currentPage > 1) {
-                currentPage--;
-                updateNavigation();
-            }
-        });
-
-        nextButton.addEventListener('click', () => {
-            audio.button();
-            if (currentPage < totalPages) {
-                currentPage++;
-                updateNavigation();
-            }
-        });
-
-        doneButton.addEventListener('click', () => {
-            audio.button();
-            this.showScreen('start-screen');
-        });
-
-        // Initialize navigation state
-        updateNavigation();
     }
 
     resetGame() {
@@ -1174,4 +1115,12 @@ window.addEventListener('load', () => {
     effects = new EffectsManager();
     // Exposed for debugging / tooling.
     window.game = new Game();
+    tutorial = new Tutorial(window.game);
+
+    // Show the interactive tutorial automatically the first time only; returning
+    // players land straight on the start screen and can replay it any time via
+    // the Tutorial button.
+    if (!Tutorial.seen()) {
+        tutorial.open();
+    }
 }); 

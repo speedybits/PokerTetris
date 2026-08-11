@@ -29,11 +29,11 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 - Background: gradient from #1a0f2e to #2c1654
 
 ### Card Layout
-- Each card must fit inside a cell
-- Aspect ratio: 1:2 (width:height)
-- Card width: 96% of cell width
-- Card height: card width * 2
-- Card position: centered in cell (transform: translate(-50%, -50%))
+- Each card must fit inside a (square) cell
+- Aspect ratio: real playing-card proportions, 2.5 x 3.5 in ≈ 5:7 (width:height)
+- Card height: 96% of cell height
+- Card width: ~69% of cell width (so height:width ≈ 7:5)
+- Card position: centered horizontally in cell (left: 50%; transform: translateX(-50%))
 - Card padding: 8% vertical, 4% horizontal
 - Card text:
   - Value: positioned at top half of the card, font-size as large as possible while still fitting
@@ -69,6 +69,7 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 ### Start Screen
 - High scores displayed at the top (top 5 scores with initials)
 - Large "Start Game" button with gradient effect
+- "Tutorial" button that opens the interactive tutorial
 - Neon glow effects on button hover
 - Each high score shows:
   - Player initials (3 characters)
@@ -76,6 +77,19 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
   - Date achieved
 - High scores panel with translucent background
 - Golden border and shadow effects
+
+### Interactive Tutorial (replaces the old static "How To Play")
+- A guided, hands-on walkthrough that teaches by doing:
+  - Step 1: shows an already-completed winning row as an example
+  - Step 2: the player taps a highlighted column to drop a card and
+    complete a **row** (a Straight)
+  - Step 3: the player taps to complete a **column** (a Flush)
+  - Step 4: introduces Jokers (wild) and X blockers, then "Play"
+- Uses the real `.card` styling (so cards keep their proper 5:7 shape) and
+  the shared sound/particle engines (coins, chime, sparkles) on each win
+- **Dismissible**: a "Skip ✕" button exits at any time; the tutorial only
+  auto-opens on a player's first visit (tracked via `localStorage`), and
+  can be replayed any time from the Start Screen's "Tutorial" button
 
 ### Game Screen
 - Width: 5 cards
