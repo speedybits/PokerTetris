@@ -352,102 +352,177 @@
 
         .how-to-play-button:hover {
             transform: translateY(-3px);
-            box-shadow: 
+            box-shadow:
                 0 0 20px #ffd700,
                 0 0 40px #ffd700;
         }
 
-        /* How To Play Screen */
-        #how-to-play-screen {
+        /* ===== Interactive Tutorial ===== */
+        #tutorial-screen {
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
-        .how-to-play-content {
-            background: linear-gradient(135deg, rgba(30,15,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
+        .tutorial-content {
+            position: relative;
+            background: linear-gradient(135deg, rgba(30,15,46,0.97) 0%, rgba(45,27,78,0.97) 100%);
             border: 2px solid #ffd700;
             border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            max-height: 80dvh;
+            padding: 20px 18px 18px;
+            width: 94%;
+            max-width: 460px;
+            max-height: 92dvh;
             overflow-y: auto;
-            box-shadow:
-                0 0 10px #ffd700,
-                0 0 20px rgba(255,215,0,0.3);
-            touch-action: pan-y;
             -webkit-overflow-scrolling: touch;
-        }
-
-        .how-to-play-page {
-            display: none;
-        }
-
-        .how-to-play-page.active {
-            display: block;
-        }
-
-        .how-to-play-content h2 {
-            color: #ffd700;
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 28px;
-            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+            box-shadow: 0 0 14px rgba(255,215,0,0.5), inset 0 0 26px rgba(255,215,0,0.07);
         }
 
-        .how-to-play-content p {
-            color: white;
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 15px;
+        .tutorial-skip {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: rgba(255,255,255,0.08);
+            color: #ffd700;
+            border: 1px solid rgba(255,215,0,0.5);
+            border-radius: 14px;
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.2s ease;
+            z-index: 2;
+        }
+        .tutorial-skip:active { background: rgba(255,255,255,0.2); }
+
+        .tutorial-title {
+            color: #ffd700;
+            font-size: clamp(20px, 6vw, 26px);
+            margin: 4px 0 8px;
+            text-shadow: 0 0 12px rgba(255,215,0,0.5);
+            padding: 0 60px;
         }
 
-        .how-to-play-nav {
+        .tutorial-text {
+            color: #fff;
+            font-size: clamp(14px, 3.8vw, 16px);
+            line-height: 1.45;
+            margin: 0 auto 12px;
+            max-width: 400px;
+        }
+        .tutorial-text b { color: #ffd700; }
+
+        /* Demo board — reuses .card / .card-cell so cards keep their real shape. */
+        #tutorial-board {
+            width: min(80vw, 40dvh);
+            margin: 4px auto 10px;
+            background:
+                radial-gradient(120% 80% at 50% 0%, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0) 45%),
+                linear-gradient(160deg, #123a2a 0%, #0d2b20 55%, #0a2119 100%);
+            border: 3px solid #ffd700;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(255,215,0,0.5), inset 0 0 26px rgba(0,0,0,0.55);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            padding: 4px;
+            touch-action: manipulation;
+        }
+
+        #tutorial-board .card-cell {
+            aspect-ratio: 1 / 1;  /* Square cells → cards keep their 5:7 shape. */
+        }
+
+        /* Glowing target column the player should tap. */
+        #tutorial-board .card-cell.tut-target {
+            background-color: rgba(255,215,0,0.16);
+            box-shadow: inset 0 0 12px rgba(255,215,0,0.55);
+            animation: tutTargetPulse 1.1s ease-in-out infinite;
+        }
+        @keyframes tutTargetPulse {
+            0%, 100% { background-color: rgba(255,215,0,0.10); }
+            50% { background-color: rgba(255,215,0,0.28); }
+        }
+
+        /* The card hovering, ready to drop in. */
+        #tutorial-board .card.tut-drop {
+            z-index: 600;
+            box-shadow: 0 0 6px #ffd700, 0 6px 14px rgba(0,0,0,0.5) !important;
+            animation: tutDropGlow 1s ease-in-out infinite;
+        }
+        @keyframes tutDropGlow {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(255,215,0,0.6)); }
+            50% { filter: drop-shadow(0 0 10px rgba(255,215,0,1)); }
+        }
+
+        .tutorial-hint {
+            color: #ffe98a;
+            font-size: clamp(13px, 3.6vw, 15px);
+            min-height: 22px;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+        .tutorial-hint b { color: #fff; }
+        .tutorial-hint.shake { animation: tutShake 0.4s ease; }
+        @keyframes tutShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .tutorial-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 30px;
+            gap: 10px;
         }
 
-        .nav-button {
+        .tutorial-progress {
+            color: #ffd700;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .tutorial-btn {
             background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
-            color: white;
+            color: #fff;
             border: 2px solid #fff;
+            border-radius: 18px;
             padding: 10px 20px;
             font-size: 16px;
-            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             cursor: pointer;
-            box-shadow: 0 0 10px #ff00de;
-            transition: all 0.3s ease;
+            box-shadow: 0 0 8px #ff00de;
+            transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
+        .tutorial-btn:active { transform: scale(0.95); }
 
-        .nav-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px #ff00de;
-        }
-
-        .nav-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
+        #tutorial-prev {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
             box-shadow: none;
         }
 
-        .page-indicator {
-            color: #ffd700;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .done-button {
+        .tutorial-next {
             background: linear-gradient(135deg, #ffd700 0%, #ff9900 100%);
+            color: #1a0f2e;
             box-shadow: 0 0 10px #ffd700;
         }
-
-        .done-button:hover {
-            box-shadow: 0 0 20px #ffd700;
+        .tutorial-next:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .tutorial-next.waiting {
+            /* Nudge attention to the board, not the (disabled) button. */
+            filter: grayscale(0.4);
         }
 
         /* Game Screen */
@@ -1267,89 +1342,22 @@
         </div>
         <div class="start-bottom">
             <button class="start-button">Start Game</button>
-            <button class="how-to-play-button">How To Play</button>
+            <button class="how-to-play-button">Tutorial</button>
         </div>
     </div>
 
-    <!-- How To Play Screen -->
-    <div id="how-to-play-screen" class="screen">
-        <div class="how-to-play-content">
-            <!-- Page 1: Basic Rules -->
-            <div class="how-to-play-page" data-page="1">
-                <h2>Basic Rules</h2>
-                <p>• Cards fall one at a time from the top</p>
-                <p>• Move cards left or right as they fall</p>
-                <p>• Quick Drop button instantly drops cards</p>
-                <p>• Form poker hands to clear cards</p>
-                <p>• Game ends if cards reach the top</p>
-                <p>• Each level adds restrictions</p>
-                <p>• Points multiply with each level</p>
-                <h3>Special Cards</h3>
-                <p>• X Cards:</p>
-                <p class="indent">- 5 X cards in the deck</p>
-                <p class="indent">- Cannot be moved left/right</p>
-                <p class="indent">- Break up any poker hand sequence</p>
-                <p class="indent">- Act as obstacles on the board</p>
-                <p>• Jokers act as wild cards</p>
-            </div>
-
-            <!-- Page 2: Poker Hands -->
-            <div class="how-to-play-page" data-page="2">
-                <h2>Poker Hands & Base Scoring</h2>
-                <p>Valid poker hands (from lowest to highest):</p>
-                <p>• One Pair: 25 points</p>
-                <p>• Two Pair: 50 points</p>
-                <p>• Three of a Kind: 100 points</p>
-                <p>• Straight: 150 points</p>
-                <p>• Flush: 200 points</p>
-                <p>• Full House: 300 points</p>
-                <p>• Four of a Kind: 500 points</p>
-                <p>• Straight Flush: 1000 points</p>
-                <p>• Royal Flush: 2000 points</p>
-            </div>
-
-            <!-- Page 3: Levels -->
-            <div class="how-to-play-page" data-page="3">
-                <h2>Level System</h2>
-                <p>Each level increases your score multiplier but removes lower poker hands:</p>
-                <p>• Level 1: All poker hands valid (1x points)</p>
-                <p>• Level 2: Pairs no longer count (2x points)</p>
-                <p>• Level 3: Two Pairs also removed (3x points)</p>
-                <p>• Level 4: Three of a Kind removed (4x points)</p>
-                <p>• Level 5: Straight removed (5x points)</p>
-                <p>• Level 6: Flush removed (6x points)</p>
-                <p>• Level 7: Full House removed (7x points)</p>
-                <p>• Level 8: Four of a Kind removed (8x points)</p>
-                <p>• Level 9+: Only Royal/Straight Flush (9x+ points)</p>
-            </div>
-
-            <!-- Page 4: Jokers -->
-            <div class="how-to-play-page" data-page="4">
-                <h2>Jokers Per Level</h2>
-                <p>Jokers are wild cards that can represent any card. The number of Jokers in the deck increases with each level:</p>
-                <p>• Level 1: 2 Jokers</p>
-                <p>• Level 2: 4 Jokers</p>
-                <p>• Level 3: 6 Jokers</p>
-                <p>• Level 4: 8 Jokers</p>
-                <p>• Level 5: 10 Jokers</p>
-                <p>• Level 6: 12 Jokers</p>
-                <p>• Level 7: 14 Jokers</p>
-                <p>• Level 8: 16 Jokers</p>
-                <p>• Level 9+: 18 Jokers</p>
-                <p>Jokers are represented by a "?" symbol and can be used to complete any poker hand.</p>
-            </div>
-
-            <div class="how-to-play-nav">
-                <div class="nav-left">
-                    <button class="nav-button" id="prev-page">Previous</button>
-                </div>
-                <div class="nav-center">
-                    <span class="page-indicator">Page 1/4</span>
-                </div>
-                <div class="nav-right">
-                    <button class="nav-button" id="next-page">Next</button>
-                    <button class="nav-button done-button" style="display: none;">Done</button>
-                </div>
+    <!-- Interactive Tutorial Screen -->
+    <div id="tutorial-screen" class="screen">
+        <div class="tutorial-content">
+            <button class="tutorial-skip" aria-label="Skip tutorial">Skip &#10005;</button>
+            <h2 class="tutorial-title">How To Play</h2>
+            <p class="tutorial-text"></p>
+            <div id="tutorial-board"></div>
+            <div class="tutorial-hint"></div>
+            <div class="tutorial-nav">
+                <button class="tutorial-btn" id="tutorial-prev">&#8249; Back</button>
+                <span class="tutorial-progress">1 / 4</span>
+                <button class="tutorial-btn tutorial-next" id="tutorial-next">Next &#8250;</button>
             </div>
         </div>
     </div>
@@ -1657,6 +1665,7 @@
     <script src="js/highscores.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/effects.js"></script>
+    <script src="js/tutorial.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html> 

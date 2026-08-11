@@ -69,6 +69,7 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
 ### Start Screen
 - High scores displayed at the top (top 5 scores with initials)
 - Large "Start Game" button with gradient effect
+- "Tutorial" button that opens the interactive tutorial
 - Neon glow effects on button hover
 - Each high score shows:
   - Player initials (3 characters)
@@ -76,6 +77,19 @@ Cardtris combines the falling-block mechanics of Tetris with poker hand evaluati
   - Date achieved
 - High scores panel with translucent background
 - Golden border and shadow effects
+
+### Interactive Tutorial (replaces the old static "How To Play")
+- A guided, hands-on walkthrough that teaches by doing:
+  - Step 1: shows an already-completed winning row as an example
+  - Step 2: the player taps a highlighted column to drop a card and
+    complete a **row** (a Straight)
+  - Step 3: the player taps to complete a **column** (a Flush)
+  - Step 4: introduces Jokers (wild) and X blockers, then "Play"
+- Uses the real `.card` styling (so cards keep their proper 5:7 shape) and
+  the shared sound/particle engines (coins, chime, sparkles) on each win
+- **Dismissible**: a "Skip ✕" button exits at any time; the tutorial only
+  auto-opens on a player's first visit (tracked via `localStorage`), and
+  can be replayed any time from the Start Screen's "Tutorial" button
 
 ### Game Screen
 - Width: 5 cards
