@@ -41,6 +41,7 @@ class Tutorial {
         this.prevBtn = document.getElementById('tutorial-prev');
         this.nextBtn = document.getElementById('tutorial-next');
         this.skipBtn = this.screen.querySelector('.tutorial-skip');
+        this.hand = document.getElementById('tutorial-hand');
 
         this._wire();
     }
@@ -86,12 +87,14 @@ class Tutorial {
 
     close() {
         this._stopFall();
+        this._hideHand();
         localStorage.setItem('cardtrisTutorialSeen', 'true');
         this.game.showScreen('start-screen');
     }
 
     finish() {
         this._stopFall();
+        this._hideHand();
         localStorage.setItem('cardtrisTutorialSeen', 'true');
         this.game.startGame();
     }
@@ -124,6 +127,38 @@ class Tutorial {
 
         this._setupStep(s);
         this._updateNext(s);
+        if (s.interactive) this._showHand(s); else this._hideHand();
+    }
+
+    /*
+     * Show the ghost finger looping a tap over the spot the player should touch:
+     * the target side of the board on the steering step, or the Quick Drop
+     * button on the drop steps.
+     */
+    _showHand(s) {
+        if (!this.hand) return;
+        requestAnimationFrame(() => {
+            let tx, ty;
+            if (s.kind === 'move') {
+                const r = this.boardEl.getBoundingClientRect();
+                tx = r.left + r.width * 0.82;
+                ty = r.top + r.height * 0.30;
+            } else if (s.showDrop !== false) {
+                const r = this.dropBtn.getBoundingClientRect();
+                tx = r.left + r.width * 0.5;
+                ty = r.top + r.height * 0.5;
+            } else {
+                this._hideHand();
+                return;
+            }
+            this.hand.style.left = (tx - 24) + 'px';
+            this.hand.style.top = (ty - 6) + 'px';
+            this.hand.classList.add('active');
+        });
+    }
+
+    _hideHand() {
+        if (this.hand) this.hand.classList.remove('active');
     }
 
     _updateNext(s) {
@@ -243,12 +278,34 @@ class Tutorial {
             this.cur.x = nx;
             audio.move();
             this.game.haptic(8);
+            this._hideHand();
             this._drawBoard();
+
+            // On the steering step there's no time pressure: the card waits at
+            // the top while you line it up, then drops in once it's over the
+            // target column.
+            if (this.stepDef.kind === 'move' && this.cur.x === this.stepDef.targetColumn) {
+                this._dropIntoTarget();
+            }
         }
+    }
+
+    _dropIntoTarget() {
+        this.locked = true;  // no more steering while it drops in
+        setTimeout(() => {
+            if (!this.cur) return;
+            while (this.cur.y + 1 < this.rows && this.grid[this.cur.y + 1][this.cur.x] === null) {
+                this.cur.y++;
+            }
+            audio.drop();
+            this._drawBoard();
+            this._lock();
+        }, 260);
     }
 
     _quickDrop() {
         if (!this.cur || this.locked) return;
+        this._hideHand();
         while (this.cur.y + 1 < this.rows && this.grid[this.cur.y + 1][this.cur.x] === null) {
             this.cur.y++;
         }
@@ -278,6 +335,7 @@ class Tutorial {
 
     _lock() {
         this._stopFall();
+        this._hideHand();
         if (!this.cur) return;
         const { card, x, y } = this.cur;
         this.grid[y][x] = card;
@@ -392,14 +450,15 @@ class Tutorial {
     _buildSteps() {
         return [
             {
-                // Pure controls practice: steer a falling card left/right.
-                title: 'Steer the Falling Card',
-                text: 'Cards fall from the top. <b>Tap the left or right side</b> of the board to slide the falling card across.',
-                hint: '👆 Tap left / right to guide the card into the <b>glowing column</b> before it lands.',
+                // Pure controls practice: steer the card, then it drops in when
+                // it reaches the target column (no time pressure).
+                title: 'Steer the Card',
+                text: 'Line the card up before it drops. <b>Tap the left or right side</b> of the board to slide it across.',
+                hint: '👆 Tap left / right to move the card over the <b>glowing column</b> — it drops in once it’s there.',
                 interactive: true,
                 kind: 'move',
                 movable: true,
-                autoFall: true,
+                autoFall: false,
                 showDrop: false,
                 spawn: { suit: 'diamonds', value: 7, startX: 0 },
                 targetColumn: 3
