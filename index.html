@@ -458,6 +458,56 @@
             50% { filter: drop-shadow(0 0 9px rgba(255,215,0,1)); }
         }
 
+        /* Animated guide hand — a ghost finger that loops a tap on the spot the
+           player should touch, then hides once they take over. */
+        #tutorial-hand {
+            position: fixed;
+            width: 48px;
+            height: 60px;
+            pointer-events: none;
+            z-index: 1400;
+            display: none;
+        }
+        #tutorial-hand.active { display: block; }
+
+        #tutorial-hand .finger {
+            display: block;
+            font-size: 40px;
+            line-height: 1;
+            text-align: center;
+            opacity: 0.92;
+            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.55));
+            transform-origin: 50% 0%;
+            animation: handTap 1.4s ease-in-out infinite;
+        }
+
+        #tutorial-hand .ripple {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin-left: -8px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.95);
+            box-shadow: 0 0 8px rgba(255,255,255,0.6);
+            transform: scale(0);
+            opacity: 0;
+            animation: handRipple 1.4s ease-out infinite;
+        }
+
+        @keyframes handTap {
+            0%, 100% { transform: translateY(0) scale(1); }
+            15% { transform: translateY(9px) scale(0.9); }
+            32% { transform: translateY(0) scale(1); }
+        }
+
+        @keyframes handRipple {
+            0%, 10% { transform: scale(0.3); opacity: 0.9; }
+            45% { transform: scale(2.6); opacity: 0; }
+            100% { transform: scale(2.6); opacity: 0; }
+        }
+
         /* Quick Drop control — mirrors the in-game button. */
         #tutorial-controls {
             display: flex;
@@ -1391,6 +1441,11 @@
                 <span class="tutorial-progress">1 / 4</span>
                 <button class="tutorial-btn tutorial-next" id="tutorial-next">Next &#8250;</button>
             </div>
+        </div>
+        <!-- Animated guide hand (ghost finger + tap ripple) -->
+        <div id="tutorial-hand" aria-hidden="true">
+            <span class="ripple"></span>
+            <span class="finger">&#128070;</span>
         </div>
     </div>
 

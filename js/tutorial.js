@@ -41,6 +41,7 @@ class Tutorial {
         this.prevBtn = document.getElementById('tutorial-prev');
         this.nextBtn = document.getElementById('tutorial-next');
         this.skipBtn = this.screen.querySelector('.tutorial-skip');
+        this.hand = document.getElementById('tutorial-hand');
 
         this._wire();
     }
@@ -86,12 +87,14 @@ class Tutorial {
 
     close() {
         this._stopFall();
+        this._hideHand();
         localStorage.setItem('cardtrisTutorialSeen', 'true');
         this.game.showScreen('start-screen');
     }
 
     finish() {
         this._stopFall();
+        this._hideHand();
         localStorage.setItem('cardtrisTutorialSeen', 'true');
         this.game.startGame();
     }
@@ -124,6 +127,38 @@ class Tutorial {
 
         this._setupStep(s);
         this._updateNext(s);
+        if (s.interactive) this._showHand(s); else this._hideHand();
+    }
+
+    /*
+     * Show the ghost finger looping a tap over the spot the player should touch:
+     * the target side of the board on the steering step, or the Quick Drop
+     * button on the drop steps.
+     */
+    _showHand(s) {
+        if (!this.hand) return;
+        requestAnimationFrame(() => {
+            let tx, ty;
+            if (s.kind === 'move') {
+                const r = this.boardEl.getBoundingClientRect();
+                tx = r.left + r.width * 0.82;
+                ty = r.top + r.height * 0.30;
+            } else if (s.showDrop !== false) {
+                const r = this.dropBtn.getBoundingClientRect();
+                tx = r.left + r.width * 0.5;
+                ty = r.top + r.height * 0.5;
+            } else {
+                this._hideHand();
+                return;
+            }
+            this.hand.style.left = (tx - 24) + 'px';
+            this.hand.style.top = (ty - 6) + 'px';
+            this.hand.classList.add('active');
+        });
+    }
+
+    _hideHand() {
+        if (this.hand) this.hand.classList.remove('active');
     }
 
     _updateNext(s) {
@@ -243,6 +278,7 @@ class Tutorial {
             this.cur.x = nx;
             audio.move();
             this.game.haptic(8);
+            this._hideHand();
             this._drawBoard();
 
             // On the steering step there's no time pressure: the card waits at
@@ -269,6 +305,7 @@ class Tutorial {
 
     _quickDrop() {
         if (!this.cur || this.locked) return;
+        this._hideHand();
         while (this.cur.y + 1 < this.rows && this.grid[this.cur.y + 1][this.cur.x] === null) {
             this.cur.y++;
         }
@@ -298,6 +335,7 @@ class Tutorial {
 
     _lock() {
         this._stopFall();
+        this._hideHand();
         if (!this.cur) return;
         const { card, x, y } = this.cur;
         this.grid[y][x] = card;
