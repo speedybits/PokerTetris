@@ -244,7 +244,27 @@ class Tutorial {
             audio.move();
             this.game.haptic(8);
             this._drawBoard();
+
+            // On the steering step there's no time pressure: the card waits at
+            // the top while you line it up, then drops in once it's over the
+            // target column.
+            if (this.stepDef.kind === 'move' && this.cur.x === this.stepDef.targetColumn) {
+                this._dropIntoTarget();
+            }
         }
+    }
+
+    _dropIntoTarget() {
+        this.locked = true;  // no more steering while it drops in
+        setTimeout(() => {
+            if (!this.cur) return;
+            while (this.cur.y + 1 < this.rows && this.grid[this.cur.y + 1][this.cur.x] === null) {
+                this.cur.y++;
+            }
+            audio.drop();
+            this._drawBoard();
+            this._lock();
+        }, 260);
     }
 
     _quickDrop() {
@@ -392,14 +412,15 @@ class Tutorial {
     _buildSteps() {
         return [
             {
-                // Pure controls practice: steer a falling card left/right.
-                title: 'Steer the Falling Card',
-                text: 'Cards fall from the top. <b>Tap the left or right side</b> of the board to slide the falling card across.',
-                hint: '👆 Tap left / right to guide the card into the <b>glowing column</b> before it lands.',
+                // Pure controls practice: steer the card, then it drops in when
+                // it reaches the target column (no time pressure).
+                title: 'Steer the Card',
+                text: 'Line the card up before it drops. <b>Tap the left or right side</b> of the board to slide it across.',
+                hint: '👆 Tap left / right to move the card over the <b>glowing column</b> — it drops in once it’s there.',
                 interactive: true,
                 kind: 'move',
                 movable: true,
-                autoFall: true,
+                autoFall: false,
                 showDrop: false,
                 spawn: { suit: 'diamonds', value: 7, startX: 0 },
                 targetColumn: 3
