@@ -447,15 +447,44 @@
             50% { background-color: rgba(255,215,0,0.28); }
         }
 
-        /* The card hovering, ready to drop in. */
-        #tutorial-board .card.tut-drop {
+        /* The live falling card the player controls. */
+        #tutorial-board .card.tut-active {
             z-index: 600;
             box-shadow: 0 0 6px #ffd700, 0 6px 14px rgba(0,0,0,0.5) !important;
-            animation: tutDropGlow 1s ease-in-out infinite;
+            animation: tutActiveGlow 1s ease-in-out infinite;
         }
-        @keyframes tutDropGlow {
+        @keyframes tutActiveGlow {
             0%, 100% { filter: drop-shadow(0 0 2px rgba(255,215,0,0.6)); }
-            50% { filter: drop-shadow(0 0 10px rgba(255,215,0,1)); }
+            50% { filter: drop-shadow(0 0 9px rgba(255,215,0,1)); }
+        }
+
+        /* Quick Drop control — mirrors the in-game button. */
+        #tutorial-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            min-height: 40px;
+        }
+
+        #tutorial-drop {
+            background: linear-gradient(135deg, #ff00de 0%, #9900ff 100%);
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 15px;
+            padding: 9px 26px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 0 8px #ff00de, 0 0 15px #ff00de;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            transition: transform 0.12s ease, box-shadow 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #tutorial-drop:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px #ff00de;
         }
 
         .tutorial-hint {
@@ -1353,6 +1382,9 @@
             <h2 class="tutorial-title">How To Play</h2>
             <p class="tutorial-text"></p>
             <div id="tutorial-board"></div>
+            <div id="tutorial-controls">
+                <button id="tutorial-drop">Quick Drop</button>
+            </div>
             <div class="tutorial-hint"></div>
             <div class="tutorial-nav">
                 <button class="tutorial-btn" id="tutorial-prev">&#8249; Back</button>
