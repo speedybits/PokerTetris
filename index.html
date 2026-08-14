@@ -417,6 +417,13 @@
             text-shadow: 0 0 14px rgba(255,215,0,0.6);
         }
         .tutorial-prompt.shake { animation: tutShake 0.4s ease; }
+        /* Larger, celebratory line for the text-only closing step. */
+        .tutorial-prompt.big {
+            color: #ffd700;
+            font-size: clamp(24px, 7vw, 32px);
+            margin: 46px 8px 34px;
+            text-shadow: 0 0 16px rgba(255,215,0,0.6);
+        }
 
         /* Demo board — reuses .card / .card-cell so cards keep their real shape.
            --rows is set per step so a taller board (more rows) still fits: the
@@ -1757,13 +1764,13 @@
 
     <!-- ?v= is a cache-buster: bump it whenever the JS changes so browsers
          (and iOS home-screen web apps) fetch the new files instead of stale ones. -->
-    <script src="js/card.js?v=9"></script>
-    <script src="js/deck.js?v=9"></script>
-    <script src="js/board.js?v=9"></script>
-    <script src="js/highscores.js?v=9"></script>
-    <script src="js/audio.js?v=9"></script>
-    <script src="js/effects.js?v=9"></script>
-    <script src="js/tutorial.js?v=9"></script>
-    <script src="js/game.js?v=9"></script>
+    <script src="js/card.js?v=11"></script>
+    <script src="js/deck.js?v=11"></script>
+    <script src="js/board.js?v=11"></script>
+    <script src="js/highscores.js?v=11"></script>
+    <script src="js/audio.js?v=11"></script>
+    <script src="js/effects.js?v=11"></script>
+    <script src="js/tutorial.js?v=11"></script>
+    <script src="js/game.js?v=11"></script>
 </body>
 </html> 
