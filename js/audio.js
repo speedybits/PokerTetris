@@ -282,62 +282,14 @@ class AudioManager {
     /* ---- Ambient casino bed ----------------------------------------- */
 
     startAmbient() {
-        if (this.muted) return;
-        if (!this._ensureContext()) return;
-        if (this.ctx.state === 'suspended') this.ctx.resume();
-        if (this.ambientNodes) return;
-
-        const t = this._now();
-        // Two slow detuned pads for a warm room tone.
-        const pad = this.ctx.createGain();
-        pad.gain.value = 0.0;
-        pad.gain.setTargetAtTime(0.5, t, 2);
-        pad.connect(this.musicGain);
-
-        const oscs = [];
-        [110, 164.81, 220].forEach((f, idx) => {
-            const o = this.ctx.createOscillator();
-            o.type = 'sine';
-            o.frequency.value = f;
-            o.detune.value = idx * 4;
-            const g = this.ctx.createGain();
-            g.gain.value = idx === 0 ? 0.5 : 0.22;
-            o.connect(g);
-            g.connect(pad);
-            o.start(t);
-            oscs.push(o);
-        });
-
-        // A slow LFO shimmer for movement.
-        const lfo = this.ctx.createOscillator();
-        const lfoGain = this.ctx.createGain();
-        lfo.frequency.value = 0.08;
-        lfoGain.gain.value = 0.12;
-        lfo.connect(lfoGain);
-        lfoGain.connect(pad.gain);
-        lfo.start(t);
-        oscs.push(lfo);
-
-        // Occasional distant coin sparkles keep the floor alive.
-        const sparkle = setInterval(() => {
-            if (this.muted || !this.ctx) return;
-            if (Math.random() < 0.5) {
-                this._coinTing(this._now(), 2600 + Math.random() * 2400, 0.03);
-            }
-        }, 2600);
-
-        this.ambientNodes = { oscs, pad, sparkle };
+        // Ambient bed intentionally disabled: the sustained oscillator pad read
+        // as a constant droning hum. The gameplay SFX (chips, coins, win chimes)
+        // carry the casino feel on their own.
     }
 
     stopAmbient() {
         if (!this.ambientNodes) return;
-        const { oscs, pad, sparkle } = this.ambientNodes;
-        clearInterval(sparkle);
-        const t = this._now ? this._now() : 0;
-        try {
-            pad.gain.setTargetAtTime(0.0001, t, 0.4);
-            oscs.forEach(o => o.stop(t + 1.2));
-        } catch (e) { /* nodes may already be stopped */ }
+        if (this.ambientNodes.sparkle) clearInterval(this.ambientNodes.sparkle);
         this.ambientNodes = null;
     }
 }
