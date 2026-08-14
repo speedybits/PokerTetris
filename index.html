@@ -61,10 +61,11 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Ask phones (short landscape viewports) to rotate to portrait. Desktop
-           browsers and tablets are tall enough and play fine, so they're not
-           affected by this. */
-        @media (orientation: landscape) and (max-height: 520px) {
+        /* Ask touch devices (phones/tablets) held in landscape to rotate to
+           portrait. `pointer: coarse` means the primary input is touch, so
+           desktop/laptop browsers (mouse = fine pointer) never see this,
+           regardless of window size. */
+        @media (orientation: landscape) and (pointer: coarse) and (max-height: 600px) {
             body::after {
                 content: 'Please rotate your device to portrait mode';
                 position: fixed;
@@ -1756,13 +1757,13 @@
 
     <!-- ?v= is a cache-buster: bump it whenever the JS changes so browsers
          (and iOS home-screen web apps) fetch the new files instead of stale ones. -->
-    <script src="js/card.js?v=8"></script>
-    <script src="js/deck.js?v=8"></script>
-    <script src="js/board.js?v=8"></script>
-    <script src="js/highscores.js?v=8"></script>
-    <script src="js/audio.js?v=8"></script>
-    <script src="js/effects.js?v=8"></script>
-    <script src="js/tutorial.js?v=8"></script>
-    <script src="js/game.js?v=8"></script>
+    <script src="js/card.js?v=9"></script>
+    <script src="js/deck.js?v=9"></script>
+    <script src="js/board.js?v=9"></script>
+    <script src="js/highscores.js?v=9"></script>
+    <script src="js/audio.js?v=9"></script>
+    <script src="js/effects.js?v=9"></script>
+    <script src="js/tutorial.js?v=9"></script>
+    <script src="js/game.js?v=9"></script>
 </body>
 </html> 
