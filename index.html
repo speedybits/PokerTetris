@@ -398,26 +398,29 @@
         }
         .tutorial-skip:active { background: rgba(255,255,255,0.2); }
 
-        .tutorial-title {
-            color: #ffd700;
-            font-size: clamp(20px, 6vw, 26px);
-            margin: 4px 0 8px;
-            text-shadow: 0 0 12px rgba(255,215,0,0.5);
-            padding: 0 60px;
-        }
-
-        .tutorial-text {
+        /* Single short instruction line — keeps the tutorial nearly text-free. */
+        .tutorial-prompt {
             color: #fff;
-            font-size: clamp(14px, 3.8vw, 16px);
-            line-height: 1.45;
-            margin: 0 auto 12px;
-            max-width: 400px;
+            font-size: clamp(17px, 4.8vw, 21px);
+            font-weight: bold;
+            line-height: 1.3;
+            margin: 30px 8px 10px;
+            min-height: 26px;
+            text-align: center;
         }
-        .tutorial-text b { color: #ffd700; }
+        .tutorial-prompt b { color: #ffd700; }
+        .tutorial-prompt.done {
+            color: #ffd700;
+            text-shadow: 0 0 14px rgba(255,215,0,0.6);
+        }
+        .tutorial-prompt.shake { animation: tutShake 0.4s ease; }
 
-        /* Demo board — reuses .card / .card-cell so cards keep their real shape. */
+        /* Demo board — reuses .card / .card-cell so cards keep their real shape.
+           --rows is set per step so a taller board (more rows) still fits: the
+           width shrinks to keep the height roughly constant and the cells square. */
         #tutorial-board {
-            width: min(80vw, 40dvh);
+            --rows: 8;
+            width: min(80vw, calc(44dvh * 5 / var(--rows)));
             margin: 4px auto 10px;
             background:
                 radial-gradient(120% 80% at 50% 0%, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0) 45%),
@@ -537,15 +540,6 @@
             box-shadow: 0 0 10px #ff00de;
         }
 
-        .tutorial-hint {
-            color: #ffe98a;
-            font-size: clamp(13px, 3.6vw, 15px);
-            min-height: 22px;
-            margin-bottom: 14px;
-            line-height: 1.4;
-        }
-        .tutorial-hint b { color: #fff; }
-        .tutorial-hint.shake { animation: tutShake 0.4s ease; }
         @keyframes tutShake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-6px); }
@@ -1429,13 +1423,11 @@
     <div id="tutorial-screen" class="screen">
         <div class="tutorial-content">
             <button class="tutorial-skip" aria-label="Skip tutorial">Skip &#10005;</button>
-            <h2 class="tutorial-title">How To Play</h2>
-            <p class="tutorial-text"></p>
+            <div class="tutorial-prompt"></div>
             <div id="tutorial-board"></div>
             <div id="tutorial-controls">
                 <button id="tutorial-drop">Quick Drop</button>
             </div>
-            <div class="tutorial-hint"></div>
             <div class="tutorial-nav">
                 <button class="tutorial-btn" id="tutorial-prev">&#8249; Back</button>
                 <span class="tutorial-progress">1 / 4</span>
