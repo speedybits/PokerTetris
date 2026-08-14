@@ -105,14 +105,19 @@ class Tutorial {
         this.locked = false;
         this.cur = null;
 
-        this.promptEl.className = 'tutorial-prompt';
+        this.promptEl.className = 'tutorial-prompt' + (s.bigPrompt ? ' big' : '');
         this.promptEl.innerHTML = s.prompt || '';
         this.progressEl.textContent = `${this.step + 1} / ${this.steps.length}`;
         this.prevBtn.style.visibility = this.step === 0 ? 'hidden' : 'visible';
         this.controlsEl.style.visibility =
             (s.interactive && s.showDrop !== false) ? 'visible' : 'hidden';
 
-        this._setupStep(s);
+        // Text-only steps (e.g. the closing "You're ready") hide the board and
+        // the Quick Drop row entirely.
+        this.boardEl.style.display = s.hideBoard ? 'none' : '';
+        this.controlsEl.style.display = s.hideBoard ? 'none' : '';
+
+        if (!s.hideBoard) this._setupStep(s);
         this._updateNext(s);
         if (s.interactive) this._showHand(s); else this._hideHand();
     }
@@ -524,14 +529,10 @@ class Tutorial {
                 spawn: { suit: 'x', value: 0, startX: 2 }
             },
             {
-                prompt: 'You’re ready — good luck! 🎰',
-                rows: 4,
+                prompt: 'You’re all ready!<br>Good luck! 🎰',
                 interactive: false,
-                cards: [
-                    { x: 1, y: 3, suit: 'joker', value: 0 },
-                    { x: 2, y: 3, suit: 'x', value: 0 },
-                    { x: 3, y: 3, suit: 'hearts', value: 1 }
-                ]
+                hideBoard: true,
+                bigPrompt: true
             }
         ];
     }
