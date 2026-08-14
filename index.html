@@ -61,8 +61,10 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Force portrait orientation */
-        @media (orientation: landscape) {
+        /* Ask phones (short landscape viewports) to rotate to portrait. Desktop
+           browsers and tablets are tall enough and play fine, so they're not
+           affected by this. */
+        @media (orientation: landscape) and (max-height: 520px) {
             body::after {
                 content: 'Please rotate your device to portrait mode';
                 position: fixed;
@@ -1100,6 +1102,20 @@
             }
         }
 
+        /* Desktop (wide, mouse) — keep the game in a centred phone-width column
+           so the HUD panels hug the board instead of flying to the window
+           corners. Touch devices (phones/tablets) keep the full-width layout. */
+        @media (min-width: 620px) and (pointer: fine) {
+            #game-container {
+                max-width: 460px;
+                margin: 0 auto;
+            }
+            /* Anchor the next-card and score panels to the centred column
+               (they're children of #game-container). */
+            #game-info { position: absolute; }
+            #score-display { position: absolute; }
+        }
+
         /* Card gravity animation */
         .card.falling {
             transition: transform 1s ease-in-out;
@@ -1738,13 +1754,15 @@
     <!-- Sound toggle -->
     <button id="sound-toggle" aria-label="Toggle sound">&#128266;</button>
 
-    <script src="js/card.js"></script>
-    <script src="js/deck.js"></script>
-    <script src="js/board.js"></script>
-    <script src="js/highscores.js"></script>
-    <script src="js/audio.js"></script>
-    <script src="js/effects.js"></script>
-    <script src="js/tutorial.js"></script>
-    <script src="js/game.js"></script>
+    <!-- ?v= is a cache-buster: bump it whenever the JS changes so browsers
+         (and iOS home-screen web apps) fetch the new files instead of stale ones. -->
+    <script src="js/card.js?v=8"></script>
+    <script src="js/deck.js?v=8"></script>
+    <script src="js/board.js?v=8"></script>
+    <script src="js/highscores.js?v=8"></script>
+    <script src="js/audio.js?v=8"></script>
+    <script src="js/effects.js?v=8"></script>
+    <script src="js/tutorial.js?v=8"></script>
+    <script src="js/game.js?v=8"></script>
 </body>
 </html> 
