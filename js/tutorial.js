@@ -328,7 +328,9 @@ class Tutorial {
         audio.invalid();
         this.game.haptic([15, 30, 15]);
         this._nudge('Not quite — try again!');
-        setTimeout(() => { this.promptEl.classList.remove('shake'); this._setupStep(s); this._updateNext(s); if (s.interactive) this._showHand(s); }, 1100);
+        // Re-render the whole step so state is fully reset — importantly this
+        // clears `locked`, so the retried card responds to Quick Drop again.
+        setTimeout(() => this.render(), 1100);
     }
 
     _moveSuccess(s) {
